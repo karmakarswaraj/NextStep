@@ -161,20 +161,8 @@ The application should now be running on `http://localhost:3000`.
 
 ---
 
-## Contributing
-
-We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute.
-
----
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
 ### Contact
 
-For additional questions, feel free to contact the development team at [support@nextstep.com].
+For additional questions, feel free to contact the development team at [swarajkarmakar5@gmail.com].
 
 ---

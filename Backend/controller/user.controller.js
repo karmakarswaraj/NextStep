@@ -44,51 +44,34 @@ const userRegister = async (req, res) => {
 
 const userLogin = async (req, res) => {
   try {
-    const { email, password, role } = req.body;
+    const { email, password } = req.body;
 
-    if (!email || !password || !role) {
-      return res.status(400).json({
-        message: "Invalid details",
-        success: false,
-      });
-    }
-
+    // Check if the user exists
     const user = await User.findOne({ email });
-
     if (!user) {
-      return res.status(400).json({
-        message: "No user Found",
+      return res.status(404).json({
+        message: "User not found",
         success: false,
       });
     }
 
-    const isPasswordMatched = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordMatched) {
+    // Verify the password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
       return res.status(400).json({
-        message: "Incorrect password",
+        message: "Invalid credentials",
         success: false,
       });
     }
 
-    if (user.role !== role) {
-      return res.status(400).json({
-        message: "User with this role is not valid",
-        success: false,
-      });
-    }
-
-    // Generate JWT
+    // Create JWT token with userId
     const token = jwt.sign(
-      {
-        _id: user._id,
-      },
+      { userId: user._id },
       process.env.JWT_SECRET,
-      {
-        expiresIn: "1h",
-      }
+      { expiresIn: '1h' }
     );
 
+    // Prepare user data without sensitive info
     const userData = {
       _id: user._id,
       fullname: user.fullname,
@@ -98,21 +81,30 @@ const userLogin = async (req, res) => {
       profile: user.profile,
     };
 
-    return res
-      .status(200)
-      .cookie("token", token, { httpsOnly: true, sameSite: "strict" })
-      .json({
-        message: `Welcome back ${user.fullname}`,
-        success: true,
-        user: userData,
-      });
+    // Set the token as a cookie
+    res.cookie("token", token, {
+      httpOnly: true,     // Prevents JavaScript access to the cookie
+      // secure: process.env.NODE_ENV === "production", // Use HTTPS in production
+      sameSite: "strict", // Prevents CSRF attacks
+      maxAge: 3600000     // Expires in 1 hour
+    });
+
+    // Respond with user data (token is in the cookie)
+    return res.status(200).json({
+      message: `Welcome back ${user.fullname}`,
+      success: true,
+      user: userData,
+    });
   } catch (error) {
+    console.error("Login error:", error);
     return res.status(500).json({
-      message: "User login FAILED!!!",
+      message: "Login failed due to server error",
       success: false,
     });
   }
 };
+
+
 
 const userLogout = async (req, res) => {
   try {
@@ -146,47 +138,36 @@ const updateUserProfile = async (req, res) => {
   try {
     const { fullname, email, phoneNumber, bio, skills } = req.body;
 
-    // Convert skills to an array if it's a comma-separated string
-    let skillsArray;
-    if (skills) {
-      skillsArray = skills.split(",").map((skill) => skill.trim());
-    }
+    // Convert skills to array if it’s a comma-separated string
+    const skillsArray = skills ? skills.split(',').map(skill => skill.trim()) : [];
 
-    // Get the user ID from the authenticated user (set by the middleware)
-    const userId = req.user.userId;
-
-    // Update the user's profile
+    // Update the authenticated user's profile
     const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      {
-        fullname,
-        email,
-        phoneNumber,
-        bio,
-        skills: skillsArray,
-      },
-      { new: true } // Return the updated document
+      req.user._id,  // Use req.user._id directly
+      { fullname, email, phoneNumber, bio, skills: skillsArray },
+      { new: true }  // Return the updated document
     );
 
     if (!updatedUser) {
       return res.status(404).json({
-        message: "User not found",
         success: false,
+        message: "User not found during update.",
       });
     }
 
     return res.status(200).json({
-      message: "User profile updated successfully",
       success: true,
+      message: "User profile updated successfully",
       user: updatedUser,
     });
   } catch (error) {
-    console.error(error); // Log the error for debugging
+    console.error("Error updating profile:", error);
     return res.status(500).json({
-      message: "Error updating user profile",
       success: false,
+      message: "Error updating user profile",
     });
   }
 };
+
 
 export { userRegister, userLogin, userLogout, updateUserProfile };

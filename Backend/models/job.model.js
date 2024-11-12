@@ -1,9 +1,10 @@
-import mongoose from mongoose;
+import mongoose from "mongoose";
 
 const jobSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
     requirements: { type: String },
+    experience: { type: String, required: true },
     location: { type: String, required: true },salary: { type: String },
     jobType: { type: String, required: true },
     position: { type: String, required: true },

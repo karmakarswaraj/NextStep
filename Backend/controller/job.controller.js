@@ -1,8 +1,10 @@
 import Job from "../models/job.model.js";
 import mongoose from "mongoose";
 
+// Function to post a new job
 const postJob = async (req, res) => {
   try {
+    // Destructure the job details from the request body
     const {
       title,
       description,
@@ -24,7 +26,7 @@ const postJob = async (req, res) => {
       });
     }
 
-    // Validate required fields
+    // Validate that all required fields are provided
     if (
       !title ||
       !description ||
@@ -42,12 +44,12 @@ const postJob = async (req, res) => {
       });
     }
 
-    // Split requirements into an array, trimming whitespace from each entry
+    // Split the requirements string into an array and trim whitespace from each entry
     const requirementsArray = requirements
       .split(",")
       .map((item) => item.trim());
 
-    // Create the new job posting
+    // Create a new job posting
     const job = await Job.create({
       title,
       description,
@@ -58,9 +60,10 @@ const postJob = async (req, res) => {
       jobType,
       position,
       company,
-      postedBy: userId, // Link the user ID after validation
+      postedBy: userId, // Link the user ID who posted the job
     });
 
+    // Return success response with job details
     return res.status(201).json({
       success: true,
       message: "Job posted successfully",
@@ -75,34 +78,34 @@ const postJob = async (req, res) => {
   }
 };
 
+// Function to fetch all jobs with optional keyword search
 const getAllJob = async (req, res) => {
   try {
+    // Get search keywords from the query parameters, defaulting to an empty string
     const keywords = req.query.keywords || "";
     const query = {
       $or: [
         { title: { $regex: keywords, $options: "i" } },
         { description: { $regex: keywords, $options: "i" } },
-        //   { requirements: { $regex: keywords, $options: "i" } },
-        //   { experience: { $regex: keywords, $options: "i" } },
-        //   { location: { $regex: keywords, $options: "i" } },
-        //   { salary: { $regex: keywords, $options: "i" } },
-        //   { jobType: { $regex: keywords, $options: "i" } },
-        //   { position: { $regex: keywords, $options: "i" } },
-        //   { company: { $regex: keywords, $options: "i" } },
-        //   { postedBy: { $regex: keywords, $options: "i" } },
       ],
     };
+
+    // Find jobs that match the search query and populate company details
     const jobs = await Job.find(query)
       .populate({
-        path: "company",
+        path: "company", // Populate the company field with the full company details
       })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 }); // Sort jobs by creation date in descending order
+
+    // Check if any jobs were found
     if (!jobs) {
       return res.status(404).json({
         success: false,
         message: "No jobs found",
       });
     }
+
+    // Return the fetched jobs in the response
     return res.status(200).json({
       success: true,
       message: "Jobs fetched successfully",
@@ -116,16 +119,21 @@ const getAllJob = async (req, res) => {
   }
 };
 
+// Function to fetch a single job by its ID
 const getJobId = async (req, res) => {
   try {
+    // Fetch the job using the job ID from the request parameters
     const job = await Job.findById(req.params.id);
 
+    // Check if the job was found
     if (!job) {
       return res.status(404).json({
         success: false,
         message: "Job not found",
       });
     }
+
+    // Return the found job in the response
     return res.status(200).json({
       success: true,
       message: "Job fetched successfully",
@@ -139,16 +147,21 @@ const getJobId = async (req, res) => {
   }
 };
 
+// Function to delete a job by its ID
 const deleteJob = async (req, res) => {
   try {
+    // Attempt to delete the job by its ID
     const job = await Job.findByIdAndDelete(req.params.id);
 
+    // Check if the job was found and deleted
     if (!job) {
       return res.status(404).json({
         success: false,
         message: "Job not found",
       });
     }
+
+    // Return success response after deletion
     return res.status(200).json({
       success: true,
       message: "Job deleted successfully",
@@ -162,9 +175,10 @@ const deleteJob = async (req, res) => {
   }
 };
 
+// Function to fetch all jobs posted by the admin
 const getAdminJobs = async (req, res) => {
   try {
-    // Ensure we retrieve the user's ID from the correct place
+    // Ensure we retrieve the admin's ID from the request's JWT
     const adminId = req.user?._id;
 
     // Validate that the admin ID exists
@@ -178,7 +192,7 @@ const getAdminJobs = async (req, res) => {
     // Fetch jobs posted by the admin
     const jobs = await Job.find({ postedBy: adminId });
 
-    // Check if any jobs were found
+    // Check if the admin has posted any jobs
     if (jobs.length === 0) {
       return res.status(404).json({
         success: false,
@@ -186,7 +200,7 @@ const getAdminJobs = async (req, res) => {
       });
     }
 
-    // Respond with the fetched jobs
+    // Return the jobs posted by the admin
     return res.status(200).json({
       success: true,
       message: "Jobs fetched successfully",
@@ -201,4 +215,5 @@ const getAdminJobs = async (req, res) => {
   }
 };
 
+// Export all job-related functions for use in routes
 export { postJob, getAllJob, getJobId, deleteJob, getAdminJobs };

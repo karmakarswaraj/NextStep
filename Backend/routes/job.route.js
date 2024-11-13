@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  jobPost,
+  postJob,
   getAllJob,
   getJobId,
   deleteJob,
@@ -9,10 +9,13 @@ import {
 import isAuthenticatedUser from "../middleware/isAuthenticatedUser.js";
 const router = express.Router();
 
-router.route("/post").post(isAuthenticatedUser, jobPost);
+router.route("/post").post(isAuthenticatedUser, postJob);
 router.route("/find").get(isAuthenticatedUser, getAllJob);
 router.route("/find/:id").get(isAuthenticatedUser, getJobId);
 router.route("/delete/:id").delete(isAuthenticatedUser, deleteJob);
+
 router.route("/find/admin/job").get(isAuthenticatedUser, getAdminJobs);
+
+
 
 export default router;

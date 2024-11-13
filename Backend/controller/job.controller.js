@@ -1,6 +1,7 @@
 import Job from "../models/job.model.js";
+import mongoose from "mongoose";
 
-const jobPost = async (req, res) => {
+const postJob = async (req, res) => {
   try {
     const {
       title,
@@ -13,8 +14,17 @@ const jobPost = async (req, res) => {
       position,
       company,
     } = req.body;
-    const userId = req.id;
 
+    // Extract userId from req.user and validate it
+    const userId = req.user?._id;
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or missing user ID",
+      });
+    }
+
+    // Validate required fields
     if (
       !title ||
       !description ||
@@ -32,25 +42,32 @@ const jobPost = async (req, res) => {
       });
     }
 
+    // Split requirements into an array, trimming whitespace from each entry
+    const requirementsArray = requirements
+      .split(",")
+      .map((item) => item.trim());
+
+    // Create the new job posting
     const job = await Job.create({
       title,
       description,
-      requirements,
+      requirements: requirementsArray,
       experience,
       location,
       salary,
       jobType,
       position,
       company,
-      postedBy: userId,
+      postedBy: userId, // Link the user ID after validation
     });
 
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
       message: "Job posted successfully",
       job,
     });
   } catch (error) {
+    console.error("Error posting job:", error); // Log error for debugging
     return res.status(500).json({
       success: false,
       message: "Error posting job",
@@ -75,7 +92,11 @@ const getAllJob = async (req, res) => {
         //   { postedBy: { $regex: keywords, $options: "i" } },
       ],
     };
-    const jobs = await Job.find(query);
+    const jobs = await Job.find(query)
+      .populate({
+        path: "company",
+      })
+      .sort({ createdAt: -1 });
     if (!jobs) {
       return res.status(404).json({
         success: false,
@@ -143,20 +164,36 @@ const deleteJob = async (req, res) => {
 
 const getAdminJobs = async (req, res) => {
   try {
-    const admin = req.id;
-    const jobs = await Job.find({ postedBy: admin });
-    if (!jobs) {
+    // Ensure we retrieve the user's ID from the correct place
+    const adminId = req.user?._id;
+
+    // Validate that the admin ID exists
+    if (!adminId) {
+      return res.status(400).json({
+        success: false,
+        message: "Admin ID not found in request",
+      });
+    }
+
+    // Fetch jobs posted by the admin
+    const jobs = await Job.find({ postedBy: adminId });
+
+    // Check if any jobs were found
+    if (jobs.length === 0) {
       return res.status(404).json({
         success: false,
         message: "No jobs found",
       });
     }
+
+    // Respond with the fetched jobs
     return res.status(200).json({
       success: true,
       message: "Jobs fetched successfully",
       jobs,
     });
   } catch (error) {
+    console.error("Error fetching jobs:", error); // Log error for debugging
     return res.status(500).json({
       success: false,
       message: "Error fetching jobs",
@@ -164,4 +201,4 @@ const getAdminJobs = async (req, res) => {
   }
 };
 
-export { jobPost, getAllJob, getJobId, deleteJob, getAdminJobs };
+export { postJob, getAllJob, getJobId, deleteJob, getAdminJobs };

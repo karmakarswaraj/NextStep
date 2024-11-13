@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
-
 import connectDB from "./utils/database.js";
 
 import userRoute from "./routes/user.route.js";
@@ -28,7 +27,7 @@ app.use(cors(corsOptions));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
-})
+});
 
 //API
 app.use("/api/v1/user", userRoute);

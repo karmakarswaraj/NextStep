@@ -14,7 +14,7 @@ const isAuthenticatedUser = async (req, res, next) => {
 
     // Decode token to get userId
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Decoded JWT:", decoded); // Log the decoded token for debugging
+    //console.log("Decoded JWT:", decoded); // Log the decoded token for debugging
 
     // Find the user by userId from the token
     const user = await User.findById(decoded.userId);
@@ -31,9 +31,10 @@ const isAuthenticatedUser = async (req, res, next) => {
     next();
   } catch (error) {
     console.error("Error in isAuthenticatedUser middleware:", error.message);
-    const errorMessage = error.name === "TokenExpiredError"
-      ? "Session expired. Please login again."
-      : "Invalid token. Please login.";
+    const errorMessage =
+      error.name === "TokenExpiredError"
+        ? "Session expired. Please login again."
+        : "Invalid token. Please login.";
 
     return res.status(401).json({
       success: false,

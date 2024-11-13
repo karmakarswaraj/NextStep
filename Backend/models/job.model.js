@@ -11,7 +11,12 @@ const jobSchema = new mongoose.Schema({
   position: { type: String, required: true },
   company: { type: mongoose.Schema.Types.ObjectId, ref: "Company" },
   postedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  applications: [{ type: mongoose.Schema.Types.ObjectId, ref: "Application" }],
+  applications: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Application",
+    },
+  ],
 });
 
 export default mongoose.model("Job", jobSchema);

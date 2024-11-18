@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils"; // Ensure this utility exists and works
 
-const Button = React.forwardRef(
+export const Button = React.forwardRef(
   (
     { className, variant = "default", size = "md", asChild = false, ...props },
     ref
@@ -25,7 +25,7 @@ const Button = React.forwardRef(
       <Component
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2",
+          "inline-flex items-center justify-center rounded-md font-medium ",
           variants[variant],
           sizes[size],
           className // Custom className should always come last
@@ -36,5 +36,4 @@ const Button = React.forwardRef(
   }
 );
 
-
-export default Button; // Default export here
+Button.displayName = "Button";

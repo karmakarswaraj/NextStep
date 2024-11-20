@@ -7,10 +7,17 @@ import { Github, Linkedin } from 'lucide-react';
 import { USER_ENDPOINT_API } from '@/utility/constants';
 import { toast } from "sonner";
 import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { setLoading } from '@/redux/authSlice';
+import { Loader2 } from 'lucide-react';
+
+
+
 
 function Login() {
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.auth);
   // Consolidate `role` in input state itself
   const [input, setInput] = useState({
     email: '',
@@ -26,7 +33,7 @@ function Login() {
   // Handle submit
   const submitHandler = async (event) => {
     event.preventDefault();
-
+    dispatch(setLoading(true));
     try {
       const res = await axios.post(`${USER_ENDPOINT_API}/login`, input, {
         headers: {
@@ -46,6 +53,8 @@ function Login() {
       } else {
         toast.error('An error occurred. Please try again later.');
       }
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 
@@ -109,9 +118,11 @@ function Login() {
             </div>
           </div>
           {/* Submit Button */}
-          <Button className="w-full py-3 text-lg font-bold text-white rounded-lg bg-primary hover:bg-primary-dark">
-            Log in as {input.role === "student" ? "Student" : "Recruiter"}
-          </Button>
+          {
+            loading ? <Button> <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Logging in...</Button> : <Button className="w-full py-3 text-lg font-bold text-white rounded-lg bg-primary hover:bg-primary-dark">
+              Log in as {input.role === "student" ? "Student" : "Recruiter"}
+            </Button>
+          }
           {/* Social login */}
           <div className="relative flex justify-center text-xs uppercase">
             <span className="px-2 text-white text-muted-foreground">Or continue with</span>

@@ -13,7 +13,7 @@ function Footer() {
       
 
   return (
-    <footer className="bg-primary text-primary-foreground">
+    <footer className="bg-[#121212] text-primary-foreground">
       <div className="container px-6 py-10 mx-auto">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div className="space-y-4">

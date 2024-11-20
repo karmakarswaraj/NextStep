@@ -6,14 +6,19 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { USER_ENDPOINT_API } from '@/utility/constants';
 import { toast } from "sonner"
+import { useDispatch, useSelector } from 'react-redux';
+import { setLoading } from '@/redux/authSlice';
+import { Loader2 } from 'lucide-react';
 
 function Signup() {
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.auth);
   const [input, setInput] = useState({
     fullname: '',
     email: '',
     phoneNumber: '',
     password: '',
-    role: 'student', 
+    role: 'student',
     file: '',
   });
   const navigate = useNavigate();
@@ -29,37 +34,39 @@ function Signup() {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-  
+    dispatch(setLoading(true));
     const formData = new FormData();
     formData.append('fullname', input.fullname);
     formData.append('email', input.email);
     formData.append('phoneNumber', input.phoneNumber);
     formData.append('password', input.password);
     formData.append('role', input.role);
-    
+
     if (input.file) {
       formData.append('file', input.file);
     }
-  
+
     try {
       const res = await axios.post(`${USER_ENDPOINT_API}/register`, formData);
-      
+
       if (res.data.success) {
         navigate('/login');
         toast.success(res.data.message);
       }
     } catch (error) {
       console.log(error);
-      
+
       // Check if error.response exists before accessing it
       if (error.response && error.response.data) {
         toast.error(error.response.data.message);
       } else {
         toast.error('An error occurred. Please try again later.');
       }
+    } finally {
+      dispatch(setLoading(false));
     }
   };
-  
+
 
   return (
     <div className="flex flex-col justify-center h-screen text-white bg-gray-900">
@@ -181,12 +188,11 @@ function Signup() {
           </div>
 
           {/* Submit Button */}
-          <Button
-            type="submit"
-            className="w-full py-3 text-lg font-bold text-white rounded-lg bg-primary hover:bg-primary-dark"
-          >
-            Sign Up as {input.role}
-          </Button>
+          {
+            loading ? <Button> <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Signing up...</Button> : <Button className="w-full py-3 text-lg font-bold text-white rounded-lg bg-primary hover:bg-primary-dark">
+              Sign up as {input.role === "student" ? "Student" : "Recruiter"}
+            </Button>
+          }
           <p className="flex gap-2 text-center">
             Already have an account?{' '}
             <Link to="/login" className="text-red-600 hover:underline">

@@ -172,8 +172,6 @@ function Signup() {
                 Profile Picture
               </Label>
               <Input
-                id="file"
-                name="file"
                 type="file"
                 accept="image/*"
                 onChange={changeFileHandler}

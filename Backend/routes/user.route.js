@@ -6,11 +6,12 @@ import {
   updateUserProfile,
 } from "../controller/user.controller.js"; // Import the user controller functions to handle requests
 import isAuthenticatedUser from "../middleware/isAuthenticatedUser.js"; // Import the middleware to check if the user is authenticated
+import { singleUpload } from "../middleware/multter.js";
 
 const router = express.Router(); // Create a new express router instance
 
 // Route to register a new user (POST request)
-router.route("/register").post(userRegister);
+router.route("/register").post(singleUpload,userRegister);
 
 // Route to log in an existing user (POST request)
 router.route("/login").post(userLogin);

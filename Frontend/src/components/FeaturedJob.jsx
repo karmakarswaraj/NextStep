@@ -2,13 +2,15 @@ import React from 'react'
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Briefcase, MapPin } from "lucide-react";
+import { Link } from 'react-router-dom';
 function FeaturedJob() {
+    const jobs = [1, 2, 3, 4];
     return (
         <section className="py-16">
             <div className="container mx-auto">
                 <h2 className="mb-8 text-3xl font-bold text-center">Featured Jobs</h2>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {[1, 2, 3, 4, 5, 6].map((job) => (
+                    {jobs.map((job) => (
                         <Card key={job} className="border border-gray-600 rounded-lg shadow-md bg-primary text-primary-foreground">
                             <CardHeader>
                                 <CardTitle>Software Engineer</CardTitle>
@@ -36,7 +38,7 @@ function FeaturedJob() {
                     <div className="flex items-center justify-center gap-4">
                         <div className="flex-grow h-px bg-gray-300"></div>
                         <Button variant="outline" size="lg" className="text-white bg-black hover:bg-slate-400">
-                            View All Jobs
+                            <Link to="/jobs">View All Jobs </Link>
                         </Button>
                         <div className="flex-grow h-px bg-gray-300"></div>
                     </div>

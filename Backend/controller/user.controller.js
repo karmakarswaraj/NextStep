@@ -54,13 +54,21 @@ const userRegister = async (req, res) => {
 const userLogin = async (req, res) => {
   try {
     // Destructure the email and password from the request body
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
     // Check if the user exists in the database
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({
         message: "User not found",
+        success: false,
+      });
+    }
+    console.log("Type of DB Role:", user.role);
+    console.log("Type of Login Role:", role);
+    if (user.role !== role) {
+      return res.status(403).json({
+        message: "User role mismatch",
         success: false,
       });
     }

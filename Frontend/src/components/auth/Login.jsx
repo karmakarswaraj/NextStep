@@ -8,7 +8,7 @@ import { USER_ENDPOINT_API } from '@/utility/constants';
 import { toast } from "sonner";
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { setLoading } from '@/redux/authSlice';
+import { setLoading, setUser } from '@/redux/authSlice';
 import { Loader2 } from 'lucide-react';
 
 
@@ -33,8 +33,8 @@ function Login() {
   // Handle submit
   const submitHandler = async (event) => {
     event.preventDefault();
-    dispatch(setLoading(true));
-    try {
+    
+    try {dispatch(setLoading(true));
       const res = await axios.post(`${USER_ENDPOINT_API}/login`, input, {
         headers: {
           "Content-Type": "application/json",
@@ -43,6 +43,7 @@ function Login() {
       });
 
       if (res.data.success) {
+        dispatch(setUser(res.data.user));
         navigate('/');
         toast.success(res.data.message);
       }

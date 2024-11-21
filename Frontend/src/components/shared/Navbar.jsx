@@ -8,9 +8,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { useSelector } from "react-redux";
 function Navbar() {
-  const user = false; // Replace with authentication state or logic
-
+  
+  const {user} = useSelector((state) => state.auth);
   return (
     <div className="p-4 text-white bg-[#121212]">
       <div className="flex items-center justify-between h-16 mx-auto max-w-7xl">
@@ -25,9 +26,15 @@ function Navbar() {
         <div className="flex items-center gap-12 right">
           {/* Navigation Links */}
           <ul className="flex items-center gap-5 font-medium">
-            <li className="px-4 cursor-pointer hover:text-gray-400">Home</li>
-            <li className="px-4 cursor-pointer hover:text-gray-400">Jobs</li>
-            <li className="px-4 cursor-pointer hover:text-gray-400">Browse</li>
+            <li className="px-4 cursor-pointer hover:text-gray-400">
+              <Link to="/">Home</Link>
+            </li>
+            <li className="px-4 cursor-pointer hover:text-gray-400">
+              <Link to="/jobs">Jobs</Link>
+            </li>
+            <li className="px-4 cursor-pointer hover:text-gray-400">
+              <Link to="/browse">Browse</Link>
+            </li>
           </ul>
 
           {/* User Actions */}

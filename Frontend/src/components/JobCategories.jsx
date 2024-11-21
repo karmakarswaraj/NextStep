@@ -1,23 +1,25 @@
 import React from 'react'
 import { Button } from "@/components/ui/button";
+import { Link } from 'react-router-dom';
 
 function JobCategories() {
+    const jobCategory = [
+        "Technology",
+        "Healthcare",
+        "Finance",
+        "Education",
+        "Marketing",
+        "Design",
+        "Sales",
+        "Engineering",
+    ]
     return (
         <>
             <section className="py-16">
                 <div className="container mx-auto">
                     <h2 className="mb-8 text-3xl font-bold text-center">Explore Job Categories</h2>
                     <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                        {[
-                            "Technology",
-                            "Healthcare",
-                            "Finance",
-                            "Education",
-                            "Marketing",
-                            "Design",
-                            "Sales",
-                            "Engineering",
-                        ].map((category) => (
+                        {jobCategory.map((category) => (
                             <Button key={category} variant="outline" className="py-8 text-lg text-center text-white border border-gray-300 rounded-lg shadow-md bg-primary">
                                 {category}
                             </Button>
@@ -33,7 +35,7 @@ function JobCategories() {
                     </p>
                     <div className="flex justify-center gap-4">
                         <Button size="lg" variant="secondary">
-                            Sign Up Now
+                            <Link to="/signup">Sign Up Now </Link>
                         </Button>
 
                     </div>

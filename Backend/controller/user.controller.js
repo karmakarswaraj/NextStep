@@ -64,8 +64,8 @@ const userLogin = async (req, res) => {
         success: false,
       });
     }
-    console.log("Type of DB Role:", user.role);
-    console.log("Type of Login Role:", role);
+    // console.log("Type of DB Role:", user.role);
+    // console.log("Type of Login Role:", role);
     if (user.role !== role) {
       return res.status(403).json({
         message: "User role mismatch",

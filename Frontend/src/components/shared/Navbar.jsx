@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useNavigate } from "react-router-dom";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
   Popover,
   PopoverContent,
@@ -9,9 +9,45 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { useSelector } from "react-redux";
+import axios from 'axios';
+import { USER_ENDPOINT_API } from '@/utility/constants';
+
+
 function Navbar() {
-  
-  const {user} = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+  const getCookie = (name) => {
+    const matches = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+    return matches ? decodeURIComponent(matches[1]) : undefined;
+  };
+  // const handleLogout = async () => {
+  //   try {
+  //     // Get the token from localStorage, Redux, or wherever you store it
+  //     const token = getCookie('token'); // Adjust this as needed
+
+  //     // Make the logout API request with the token
+  //     const response = await axios.post(
+  //       'http://localhost:8000/api/v1/user/logout',
+  //       {},
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+
+  //     // If logout is successful, clear the user data and redirect
+  //     if (response.status === 200) {
+  //       dispatch(clearUser());
+  //       document.cookie = 'token=; Max-Age=0'; // Clear the token cookie
+  //       history.push('/login');
+  //     }
+  //   } catch (error) {
+  //     console.error('Logout failed:', error);
+  //     // Handle error (e.g., show a message to the user)
+  //   }
+  // };
+
   return (
     <div className="p-4 text-white bg-[#121212]">
       <div className="flex items-center justify-between h-16 mx-auto max-w-7xl">
@@ -71,12 +107,15 @@ function Navbar() {
 
                     {/* Profile & Logout Buttons */}
                     <div className="flex gap-4">
-                      <Button variant="link" className="w-1/2 border-none bg-slate-300">
+                      <Button variant="link" className="w-1/2 border-none bg-slate-300" onClick={() => {
+                        navigate("/profile");
+                      }}>
                         Show Profile
                       </Button>
-                      <Button variant="link" className="w-1/2 border-none bg-slate-300">
+                      <Button variant="link" className="w-1/2 border-none bg-slate-300" >
                         <div className="flex gap-3">
                           <p>Log out</p>
+                          {/* onClick={handleLogout} */}
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"

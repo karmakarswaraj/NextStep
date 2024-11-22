@@ -34,7 +34,8 @@ function Login() {
   const submitHandler = async (event) => {
     event.preventDefault();
     
-    try {dispatch(setLoading(true));
+    try {
+      dispatch(setLoading(true));
       const res = await axios.post(`${USER_ENDPOINT_API}/login`, input, {
         headers: {
           "Content-Type": "application/json",

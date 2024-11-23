@@ -8,7 +8,7 @@ import JobCategories from "../JobCategories";
 
 export default function HomePage() {
     return (
-        <div className="min-h-screen bg-[#75cda7]">
+        <div className="min-h-screen">
             <Navbar />
             <HeroSection />
             <FeaturedJob />

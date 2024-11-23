@@ -6,20 +6,20 @@ import { Link } from 'react-router-dom';
 function FeaturedJob() {
     const jobs = [1, 2, 3, 4];
     return (
-        <section className="py-16">
+        <section className="py-16 text-white bg-gray-900">
             <div className="container mx-auto">
                 <h2 className="mb-8 text-3xl font-bold text-center">Featured Jobs</h2>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {jobs.map((job) => (
-                        <Card key={job} className="border border-gray-600 rounded-lg shadow-md bg-primary text-primary-foreground">
+                        <Card key={job} className="border border-gray-600 rounded-lg shadow-md ">
                             <CardHeader>
                                 <CardTitle>Software Engineer</CardTitle>
-                                <CardDescription className="text-sm text-white">TechCorp Inc.</CardDescription>
+                                <CardDescription className="text-sm ">TechCorp Inc.</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <div className="flex items-center mb-2">
                                     <MapPin className="w-4 h-4 mr-2" />
-                                    <span>San Francisco, CA</span>
+                                    <span >San Francisco, CA</span>
                                 </div>
                                 <div className="flex items-center">
                                     <Briefcase className="w-4 h-4 mr-2" />
@@ -27,7 +27,7 @@ function FeaturedJob() {
                                 </div>
                             </CardContent>
                             <CardFooter>
-                                <Button variant="ghost" className="w-full bg-slate-400 hover:bg-red-600 ">
+                                <Button variant="ghost" className="w-full text-white bg-black hover:bg-red-600 hover:text-white">
                                     View Job
                                 </Button>
                             </CardFooter>
@@ -37,7 +37,7 @@ function FeaturedJob() {
                 <div className="mt-8 text-center">
                     <div className="flex items-center justify-center gap-4">
                         <div className="flex-grow h-px bg-gray-300"></div>
-                        <Button variant="outline" size="lg" className="text-white bg-black hover:bg-slate-400">
+                        <Button variant="outline" size="lg" className="text-white bg-black hover:bg-red-600 hover:text-white">
                             <Link to="/jobs">View All Jobs </Link>
                         </Button>
                         <div className="flex-grow h-px bg-gray-300"></div>

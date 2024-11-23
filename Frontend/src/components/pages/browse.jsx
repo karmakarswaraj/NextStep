@@ -35,15 +35,15 @@ const topCompanies = [
 
 export default function BrowsePage() {
     return (
-        <div className="min-h-screen bg-[#75cda7]">
+        <div className="min-h-screen bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900">
             <Navbar />
 
             <div className="container px-4 py-8 mx-auto">
-                <h1 className="mb-8 text-3xl font-bold">Browse Opportunities</h1>
+                <h1 className="mb-8 text-3xl font-bold text-white">Browse Opportunities</h1>
 
                 {/* Job Categories */}
                 <section className="mb-12">
-                    <h2 className="mb-4 text-2xl font-semibold">Job Categories</h2>
+                    <h2 className="mb-4 text-2xl font-semibold text-white">Job Categories</h2>
                     <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
                         {jobCategories.map((category) => (
                             <Card key={category.name} className="transition-shadow hover:shadow-md">
@@ -55,7 +55,7 @@ export default function BrowsePage() {
                                     <CardDescription>{category.count} jobs available</CardDescription>
                                 </CardHeader>
                                 <CardFooter>
-                                    <Button variant="ghost" className="w-full">
+                                    <Button variant="ghost" className="w-full text-white bg-black hover:bg-red-600 ">
                                         Explore <ArrowRight className="w-4 h-4 ml-2" />
                                     </Button>
                                 </CardFooter>
@@ -66,17 +66,17 @@ export default function BrowsePage() {
 
                 {/* Trending Jobs */}
                 <section className="mb-12">
-                    <h2 className="mb-4 text-2xl font-semibold">Trending Job Roles</h2>
-                    <Card>
+                    <h2 className="mb-4 text-2xl font-semibold text-white">Trending Job Roles</h2>
+                    <Card className="text-white bg-gray-700 border border-black">
                         <CardContent className="p-6">
                             <ul className="space-y-4">
                                 {trendingJobs.map((job) => (
                                     <li key={job.title} className="flex items-center justify-between">
                                         <div className="flex items-center">
-                                            <TrendingUp className="w-5 h-5 mr-2 text-primary" />
+                                            <TrendingUp className="w-5 h-5 mr-2 text-red-600 " />
                                             <span>{job.title}</span>
                                         </div>
-                                        <Badge variant="secondary">{job.growth}</Badge>
+                                        <Badge variant="secondary" className={"bg-red-600"}>{job.growth}</Badge>
                                     </li>
                                 ))}
                             </ul>
@@ -86,7 +86,7 @@ export default function BrowsePage() {
 
                 {/* Top Companies */}
                 <section>
-                    <h2 className="mb-4 text-2xl font-semibold">Top Companies Hiring</h2>
+                    <h2 className="mb-4 text-2xl font-semibold text-white">Top Companies Hiring</h2>
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {topCompanies.map((company) => (
                             <Card key={company.name} className="transition-shadow hover:shadow-md">
@@ -107,7 +107,7 @@ export default function BrowsePage() {
                                     </div>
                                 </CardContent>
                                 <CardFooter>
-                                    <Button variant="outline" className="w-full">
+                                    <Button variant="outline" className="w-full text-white bg-black hover:bg-red-600">
                                         View Jobs
                                     </Button>
                                 </CardFooter>

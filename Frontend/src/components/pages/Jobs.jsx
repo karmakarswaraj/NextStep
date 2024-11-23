@@ -131,14 +131,15 @@ export default function JobListingPage() {
 
 
     return (
-        <div className="mx-auto bg-[#75cda7]">
+        <div className="mx-auto bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900">
             <Navbar />
             <div className="container px-4 py-8 ">
-                <h1 className="mx-20 mb-8 text-3xl font-bold">Find Your Next Opportunity</h1>
+                <h1 className="mx-20 mb-8 text-3xl font-bold text-white">Find Your <span className="text-red-500">Next</span> Opportunity</h1>
                 <div className="flex flex-col justify-around gap-8 lg:flex-row">
                     {/* Filter Sidebar */}
-                    <aside className="w-full lg:w-1/4">
-                        <Card>
+
+                    <aside className="w-full border-none lg:w-1/4">
+                        <Card className="border border-black ">
                             <CardHeader>
                                 <CardTitle>Filters</CardTitle>
                             </CardHeader>
@@ -287,7 +288,7 @@ export default function JobListingPage() {
                                     </p>
                                 </CardContent>
                                 <CardFooter>
-                                    <Button variant="outline" className="w-full">
+                                    <Button variant="outline" className="w-full text-white bg-black hover:bg-red-600">
                                         View Job
                                     </Button>
                                 </CardFooter>
@@ -296,19 +297,19 @@ export default function JobListingPage() {
 
                         {/* Pagination */}
                         <div className="flex justify-center mt-8">
-                            <Button variant="outline" className="mx-1">
+                            <Button variant="outline" className="mx-1 hover:bg-yellow-300">
                                 Previous
                             </Button>
-                            <Button variant="outline" className="mx-1">
+                            <Button variant="outline" className="mx-1 hover:bg-yellow-300">
                                 1
                             </Button>
-                            <Button variant="outline" className="mx-1">
+                            <Button variant="outline" className="mx-1 hover:bg-yellow-300">
                                 2
                             </Button>
-                            <Button variant="outline" className="mx-1">
+                            <Button variant="outline" className="mx-1 hover:bg-yellow-300">
                                 3
                             </Button>
-                            <Button variant="outline" className="mx-1">
+                            <Button variant="outline" className="mx-1 hover:bg-yellow-300">
                                 Next
                             </Button>
                         </div>

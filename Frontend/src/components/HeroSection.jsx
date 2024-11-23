@@ -11,7 +11,7 @@ function HeroSection() {
         // Implement search logic here
     };
     return (
-        <section className="py-20 bg-[#161616] text-primary-foreground">
+        <section className="py-20 bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900 text-primary-foreground">
             <div className="container mx-auto text-center">
                 <h1 className="mb-4 text-4xl font-bold">Find Your Dream Job with Next<span className="text-red-600">Step</span></h1>
                 <p className="mb-8 text-xl">Connect with top employers and take the next step in your career</p>

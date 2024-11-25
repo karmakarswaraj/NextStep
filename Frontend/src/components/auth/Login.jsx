@@ -22,7 +22,7 @@ function Login() {
   const [input, setInput] = useState({
     email: '',
     password: '',
-    role: 'student',  // default value for role
+    role: 'Student',  // default value for role
   });
 
   // Handle input change
@@ -100,8 +100,8 @@ function Login() {
                   <Input
                     type="radio"
                     name="role"
-                    value="student"
-                    checked={input.role === 'student'}
+                    value="Student"
+                    checked={input.role === 'Student'}
                     onChange={changeEventHandler}
                   />
                   <Label className="cursor-pointer">Student</Label>
@@ -122,7 +122,7 @@ function Login() {
           {/* Submit Button */}
           {
             loading ? <Button> <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Logging in...</Button> : <Button className="w-full py-3 text-lg font-bold text-white rounded-lg bg-primary hover:bg-primary-dark">
-              Log in as {input.role === "student" ? "Student" : "Recruiter"}
+              Log in as {input.role === "Student" ? "Student" : "Recruiter"}
             </Button>
           }
           {/* Social login */}

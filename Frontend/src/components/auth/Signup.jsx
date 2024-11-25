@@ -18,7 +18,7 @@ function Signup() {
     email: '',
     phoneNumber: '',
     password: '',
-    role: 'student',
+    role: 'Student',
     file: '',
   });
   const navigate = useNavigate();
@@ -154,8 +154,8 @@ function Signup() {
                   <Input
                     type="radio"
                     name="role"
-                    value="student"
-                    checked={input.role === 'student'}
+                    value="Student"
+                    checked={input.role === 'Student'}
                     onChange={changeEventHandler}
                   />
                   <Label className="cursor-pointer">Student</Label>
@@ -190,7 +190,7 @@ function Signup() {
           {/* Submit Button */}
           {
             loading ? <Button> <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Signing up...</Button> : <Button className="w-full py-3 text-lg font-bold text-white rounded-lg bg-primary hover:bg-primary-dark">
-              Sign up as {input.role === "student" ? "Student" : "Recruiter"}
+              Sign up as {input.role === "Student" ? "Student" : "Recruiter"}
             </Button>
           }
           <p className="flex gap-2 text-center">

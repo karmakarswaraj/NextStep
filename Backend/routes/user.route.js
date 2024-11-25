@@ -11,7 +11,7 @@ import { singleUpload } from "../middleware/multter.js";
 const router = express.Router(); // Create a new express router instance
 
 // Route to register a new user (POST request)
-router.route("/register").post(singleUpload,userRegister);
+router.route("/register").post(singleUpload, userRegister);
 
 // Route to log in an existing user (POST request)
 router.route("/login").post(userLogin);
@@ -21,7 +21,9 @@ router.route("/logout").post(userLogout);
 
 // Route to update the authenticated user's profile (POST request)
 // The user must be authenticated for this route
-router.route("/profile/update").post(isAuthenticatedUser, updateUserProfile);
+router
+  .route("/profile/update")
+  .post(isAuthenticatedUser, singleUpload, updateUserProfile);
 
 // Export the router to be used in the main app
 export default router;

@@ -156,31 +156,41 @@ const updateUserProfile = async (req, res) => {
     // Destructure updated user details from the request body
     const { fullname, email, phoneNumber, bio, skills } = req.body;
 
+    const file = req.file; // File (like a logo) uploaded with the request
     // Convert skills from a comma-separated string to an array if present
-    const skillsArray = skills
-      ? skills.split(",").map((skill) => skill.trim())
-      : [];
 
-    // Update the authenticated user's profile in the database
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user._id, // Use req.user._id to get the logged-in user's ID
-      { fullname, email, phoneNumber, bio, skills: skillsArray },
-      { new: true } // Return the updated user document
-    );
-
-    // Check if the user was found and updated
-    if (!updatedUser) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found during update.",
-      });
+    let skillArray = [];
+    if (Array.isArray(skills)) {
+      skillArray = skills.map((skill) => skill.trim());
+    } else {
+      console.log("Skills is not an array:", skills);
     }
 
-    // Return the updated user profile
+    const userId = req.user._id; // Get the authenticated user's ID from the request
+    let user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    // Update the authenticated user's profile in the database
+    if (fullname) user.fullname = fullname;
+    if (email) user.email = email;
+    if (phoneNumber) user.phoneNumber = phoneNumber;
+    if (bio) user.profile.bio = bio;
+    if (skills) user.profile.skills = skillArray;
+
+    if (file) {
+      user.profile.profilePic = file.path;
+    }
+
+    await user.save();
+
     return res.status(200).json({
       success: true,
-      message: "User profile updated successfully",
-      user: updatedUser,
+      message: "Profile updated successfully",
     });
   } catch (error) {
     console.error("Error updating profile:", error); // Log error for debugging

@@ -11,42 +11,33 @@ import { Button } from "@/components/ui/button";
 import { useSelector } from "react-redux";
 import axios from 'axios';
 import { USER_ENDPOINT_API } from '@/utility/constants';
-
+import { useDispatch } from "react-redux";
+import { toast } from "sonner";
+import {setAuthUser } from "@/redux/authSlice";
 
 function Navbar() {
-  const navigate = useNavigate();
+
   const { user } = useSelector((state) => state.auth);
-  const getCookie = (name) => {
-    const matches = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
-    return matches ? decodeURIComponent(matches[1]) : undefined;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+
+      const response = await axios.post(`${USER_ENDPOINT_API}/logout`, { withCredentials: true });
+
+      // If logout is successful, clear the user data and redirect
+      if (response.status === 200) {
+        dispatch(setAuthUser(null));
+        navigate('/');
+        toast.success('Logout successful');
+      }
+
+    } catch (error) {
+      console.error('Logout failed:', error);
+      toast.error(error.response?.data?.message || "Something went wrong");
+    }
   };
-  // const handleLogout = async () => {
-  //   try {
-  //     // Get the token from localStorage, Redux, or wherever you store it
-  //     const token = getCookie('token'); // Adjust this as needed
-
-  //     // Make the logout API request with the token
-  //     const response = await axios.post(
-  //       'http://localhost:8000/api/v1/user/logout',
-  //       {},
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-
-  //     // If logout is successful, clear the user data and redirect
-  //     if (response.status === 200) {
-  //       dispatch(clearUser());
-  //       document.cookie = 'token=; Max-Age=0'; // Clear the token cookie
-  //       history.push('/login');
-  //     }
-  //   } catch (error) {
-  //     console.error('Logout failed:', error);
-  //     // Handle error (e.g., show a message to the user)
-  //   }
-  // };
 
   return (
     <div className="p-4 text-white bg-[#121212]">
@@ -62,15 +53,20 @@ function Navbar() {
         <div className="flex items-center gap-12 right">
           {/* Navigation Links */}
           <ul className="flex items-center gap-5 font-medium">
-            <li className="px-4 cursor-pointer hover:text-gray-400">
-              <Link to="/">Home</Link>
-            </li>
-            <li className="px-4 cursor-pointer hover:text-gray-400">
-              <Link to="/jobs">Jobs</Link>
-            </li>
-            <li className="px-4 cursor-pointer hover:text-gray-400">
-              <Link to="/browse">Browse</Link>
-            </li>
+            {
+              user && user.role === "recruiter" ? (
+                <>
+                  <li className='hover:text-[#6A38C2] cursor-pointer'><Link to={"/admin/companies"}>Companies</Link></li>
+                  <li className='hover:text-[#6A38C2] cursor-pointer'><Link to={"/admin/jobs"}>Jobs</Link></li>
+                </>
+              ) : (
+                <>
+                  <li className='hover:text-[#6A38C2] cursor-pointer'><Link to={"/"}>Home</Link></li>
+                  <li className='hover:text-[#6A38C2] cursor-pointer'><Link to={"/jobs"}>Jobs</Link></li>
+                  <li className='hover:text-[#6A38C2] cursor-pointer'><Link to={"/browse"}>Browse</Link></li>
+                </>
+              )
+            }
           </ul>
 
           {/* User Actions */}
@@ -114,8 +110,8 @@ function Navbar() {
                       </Button>
                       <Button variant="link" className="w-1/2 border-none bg-slate-300" >
                         <div className="flex gap-3">
-                          <p>Log out</p>
-                          {/* onClick={handleLogout} */}
+                          <p onClick={handleLogout}>Log out</p>
+
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"

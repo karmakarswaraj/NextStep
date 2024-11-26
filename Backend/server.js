@@ -30,9 +30,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Set up CORS options for allowing cross-origin requests from the frontend
 const corsOptions = {
-  origin: "http://localhost:5173", // Allow requests from the specified frontend URL
+  origin: true, // Allow requests from the specified frontend URL
   credentials: true, // Allow sending cookies with requests
-  optionSuccessStatus: 200, // Set the success status for preflight responses
 };
 // Apply the CORS middleware with the specified options
 app.use(cors(corsOptions));

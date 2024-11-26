@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema(
       workExperience: { type: String },
       education: { type: String },
       resume: { type: String },
+      resumeName : { type: String },
       jobPreferences: [{ type: String }],
       company: { type: mongoose.Schema.Types.ObjectId, ref: "Company" },
       profilePic: { type: String, default: "" },

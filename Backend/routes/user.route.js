@@ -6,7 +6,7 @@ import {
   updateUserProfile,
 } from "../controller/user.controller.js"; // Import the user controller functions to handle requests
 import isAuthenticatedUser from "../middleware/isAuthenticatedUser.js"; // Import the middleware to check if the user is authenticated
-import { singleUpload } from "../middleware/multter.js";
+import { singleUpload, multipleUpload } from "../middleware/multter.js";
 
 const router = express.Router(); // Create a new express router instance
 
@@ -23,7 +23,7 @@ router.route("/logout").post(userLogout);
 // The user must be authenticated for this route
 router
   .route("/profile/update")
-  .post(isAuthenticatedUser, singleUpload, updateUserProfile);
+  .post(isAuthenticatedUser, multipleUpload, updateUserProfile);
 
 // Export the router to be used in the main app
 export default router;

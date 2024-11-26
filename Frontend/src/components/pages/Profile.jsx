@@ -13,6 +13,9 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import axios from "axios";
+import path from "path";
+import fs from "fs";
 import { useSelector } from "react-redux";
 import Footer from "../shared/Footer";
 import Navbar from "../shared/Navbar";
@@ -23,6 +26,7 @@ export default function StudentProfile() {
     //get user role from the cookie
     const { user } = useSelector((state) => state.auth);
     const role = user ? user.role : null;
+
     return (
         <div>
             <Navbar />
@@ -70,7 +74,9 @@ export default function StudentProfile() {
                                     </div>
                                 </CardContent>
                                 <CardFooter>
-                                    <Button className="w-full text-black bg-white hover:bg-red-400">Download Resume</Button>
+                                    <Button className="w-full text-black bg-white hover:bg-red-400">
+                                        Download {user?.resumeName}
+                                    </Button>
                                 </CardFooter>
                             </Card>
 

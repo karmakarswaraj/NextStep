@@ -8,7 +8,7 @@ import { USER_ENDPOINT_API } from '@/utility/constants';
 import { toast } from "sonner";
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { setLoading, setUser } from '@/redux/authSlice';
+import { setLoading, setAuthUser } from '@/redux/authSlice';
 import { Loader2 } from 'lucide-react';
 
 
@@ -33,32 +33,54 @@ function Login() {
   // Handle submit
   const submitHandler = async (event) => {
     event.preventDefault();
-    
+
     try {
       dispatch(setLoading(true));
-      const res = await axios.post(`${USER_ENDPOINT_API}/login`, input, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      });
+
+      // Validate input (email and password) before making the request
+      if (!input.email || !input.password) {
+        toast.error('Email and password are required.');
+        return;
+      }
+
+      const res = await axios.post(
+        `${USER_ENDPOINT_API}/login`,
+        input,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // for handling cookies (if needed for the session)
+        }
+      );
 
       if (res.data.success) {
-        dispatch(setUser(res.data.user));
-        navigate('/');
-        toast.success(res.data.message);
+        dispatch(setAuthUser(res.data.user)); // Set the user data in Redux store
+        navigate('/'); // Redirect to the home page after successful login
+        toast.success(res.data.message || 'Login successful'); // Show a success message
+      } else {
+        toast.error(res.data.message || 'Login failed');
       }
+
     } catch (error) {
-      console.log(error);
+      // Handle error properly: Network errors, Axios errors, etc.
+      console.error('Login failed:', error);
+
+      // Check if it's an Axios error with a response
       if (error.response && error.response.data && error.response.data.message) {
         toast.error(error.response.data.message);
+      } else if (error.message) {
+        // Handle cases where the error doesn't have a response (e.g., network error)
+        toast.error(`Error: ${error.message}`);
       } else {
+        // Generic fallback error message
         toast.error('An error occurred. Please try again later.');
       }
     } finally {
-      dispatch(setLoading(false));
+      dispatch(setLoading(false)); // Stop the loading indicator
     }
   };
+
 
   return (
     <div className="flex flex-col justify-center h-screen text-white bg-gray-900">

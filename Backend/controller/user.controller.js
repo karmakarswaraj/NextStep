@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import getDataUri from "../utils/dataUri.js";
 
 // Function to register a new user
 const userRegister = async (req, res) => {
@@ -100,8 +101,7 @@ const userLogin = async (req, res) => {
     // Set the token as a cookie in the response
     res.cookie("token", token, {
       httpOnly: true, // Prevents JavaScript access to the cookie
-      sameSite: "strict", // Prevents CSRF attacks
-      maxAge: 3600000, // Expires in 1 hour
+      sameSite: "None", // Prevents CSRF attacks
     });
 
     // Return success response with user data and message
@@ -109,6 +109,7 @@ const userLogin = async (req, res) => {
       message: `Welcome back ${user.fullname}`,
       success: true,
       user: userData,
+      token,
     });
   } catch (error) {
     console.error("Login error:", error); // Log error for debugging
@@ -122,31 +123,12 @@ const userLogin = async (req, res) => {
 // Function to log out the user
 const userLogout = async (req, res) => {
   try {
-    // Check if the user has an active session (token in cookies)
-    if (!req.cookies.token) {
-      return res.status(400).json({
-        message: "No active session found. Please log in first.",
-        success: false,
-      });
-    }
-
-    // Clear the token cookie to log the user out
-    res.clearCookie("token", {
-      httpOnly: true,
-      sameSite: "strict",
-    });
-
-    // Return success response after logout
-    return res.status(200).json({
+    return res.status(200).cookie("token", "", { maxAge: 0 }).json({
       message: "Logged out successfully",
       success: true,
     });
   } catch (error) {
-    console.error(error); // Log error for debugging
-    return res.status(500).json({
-      message: "Error logging out",
-      success: false,
-    });
+    console.log(error);
   }
 };
 
@@ -156,18 +138,43 @@ const updateUserProfile = async (req, res) => {
     // Destructure updated user details from the request body
     const { fullname, email, phoneNumber, bio, skills } = req.body;
 
-    const file = req.file; // File (like a logo) uploaded with the request
-    // Convert skills from a comma-separated string to an array if present
+    // Destructure files from req.files, with safe defaults
+    const profilePicture = req.files?.profilePicture || [];
+    const resume = req.files?.resume || [];
 
-    let skillArray = [];
-    if (Array.isArray(skills)) {
-      skillArray = skills.map((skill) => skill.trim());
-    } else {
-      console.log("Skills is not an array:", skills);
+    let profilePicUrl = "";
+    let resumeUrl = "";
+
+    // Handle profile picture upload
+    if (profilePicture[0]) {
+      const profilePictureUri = getDataUri(profilePicture[0]);
+      const profilePicUploadResponse = await cloudinary.uploader.upload(
+        profilePictureUri.content
+      );
+      profilePicUrl = profilePicUploadResponse.secure_url;
     }
 
+    // Handle resume upload
+    if (resume[0]) {
+      const resumeUri = getDataUri(resume[0]);
+      const resumeUploadResponse = await cloudinary.uploader.upload(
+        resumeUri.content,
+        { resource_type: "raw" } // For non-image files like PDFs
+      );
+      resumeUrl = resumeUploadResponse.secure_url;
+    }
+
+    // Convert skills to an array if it's a comma-separated string
+    let skillArray = [];
+    if (skills) {
+      skillArray = Array.isArray(skills)
+        ? skills.map((skill) => skill.trim())
+        : skills.split(",").map((skill) => skill.trim());
+    }
+
+    // Find the user in the database
     const userId = req.user._id; // Get the authenticated user's ID from the request
-    let user = await User.findById(userId);
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
@@ -175,17 +182,20 @@ const updateUserProfile = async (req, res) => {
         message: "User not found",
       });
     }
-    // Update the authenticated user's profile in the database
+
+    // Update the user's profile
     if (fullname) user.fullname = fullname;
     if (email) user.email = email;
     if (phoneNumber) user.phoneNumber = phoneNumber;
     if (bio) user.profile.bio = bio;
-    if (skills) user.profile.skills = skillArray;
-
-    if (file) {
-      user.profile.profilePic = file.path;
+    if (skillArray.length > 0) user.profile.skills = skillArray;
+    if (profilePicUrl) user.profile.profilePic = profilePicUrl;
+    if (resumeUrl) {
+      user.profile.resume = resumeUrl;
+      user.profile.resumeName = resume[0]?.originalname || "resume.pdf"; // Fallback file name
     }
 
+    // Save the updated user
     await user.save();
 
     return res.status(200).json({

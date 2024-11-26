@@ -1,7 +1,6 @@
-import { React, useState } from "react";
-import { Dialog } from "@radix-ui/react-dialog";
-import { useSelector } from "react-redux";
+import { React, useState, useEffect } from "react";
 import {
+    Dialog,
     DialogContent,
     DialogDescription,
     DialogFooter,
@@ -14,26 +13,42 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react";
 import axios from "axios";
-import { useDispatch } from "react-redux";
-import { setUser } from "@/redux/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { setAuthUser, setLoading } from "@/redux/authSlice";
 
 function UpdateProfile({ open, setOpen }) {
-    const [loading, setLoading] = useState(false);
-    const { user } = useSelector((state) => state.auth);
+    const { authUser, loading } = useSelector(store => store.auth);
+
+    const { user } = useSelector(store => store.auth);
     const dispatch = useDispatch();
 
     const [input, setInput] = useState({
-        fullname: user?.fullname || "",
-        email: user?.email || "",
-        phoneNumber: user?.phoneNumber || "",
-        bio: user?.profile?.bio || "",
-        skills: user?.profile?.skills?.join(", ") || "",
-        profilePicture: null, // For profile picture
-        resume: null, // For resume
+        fullname: '',
+        email: '',
+        phoneNumber: '',
+        bio: '',
+        skills: [],
+        profilePicture: '',
+        resume: '',
     });
 
+    useEffect(() => {
+        if (user) {
+            setInput({
+                fullname: user.fullname || '',
+                email: user.email || '',
+                phoneNumber: user.phoneNumber || '',
+                bio: user.profile?.bio || '',
+                skills: user.profile?.skills || [],
+                profilePicture: user.profile?.profilePic || '',
+                resume: user.profile?.resume || '',
+            });
+        }
+    }, [user]);
+
+
     const changeFileHandler = (e) => {
-        setInput({ ...input, [e.target.name]: e.target.files[0] });
+        setInput({ ...input, [e.target.name]: e.target.files?.[0] });
     };
 
     const changeEventHandler = (e) => {
@@ -43,46 +58,46 @@ function UpdateProfile({ open, setOpen }) {
     const submitHandler = async (e) => {
         e.preventDefault();
 
-        setLoading(true); 
-        
         const formData = new FormData();
+
         formData.append("fullname", input.fullname);
         formData.append("email", input.email);
         formData.append("phoneNumber", input.phoneNumber);
         formData.append("bio", input.bio);
-        formData.append("skills", input.skills);
+        input.skills.map((skill, index) => {
+            formData.append(`skills[${index}]`, skill);
+        });
 
         if (input.profilePicture) formData.append("profilePicture", input.profilePicture);
         if (input.resume) formData.append("resume", input.resume);
 
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ": " + pair[1]);
+        }
+        
         try {
+            dispatch(setLoading(true));
+
             const res = await axios.post(`${USER_ENDPOINT_API}/profile/update`, formData, {
                 headers: { "Content-Type": "multipart/form-data" },
                 withCredentials: true,
             });
 
             if (res.data.success) {
+                dispatch(setAuthUser(res.data.user));
                 toast.success("Profile updated successfully!");
-                dispatch(setUser(res.data.user));
             }
         } catch (error) {
             console.log(error);
-            if (error.response && error.response.data) {
-                toast.error(error.response?.data?.message);
-            } else {
-                toast.error("An error occurred. Please try again later.");
-            }
-        }finally {
-            setLoading(false); // Reset loading state
+        } finally {
+            dispatch(setLoading(false)); // Reset loading state
         }
         setOpen(false);
-        console.log(input);
-        
     };
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-[625px]">
+            <DialogContent className="sm:max-w-[625px]" >
                 <DialogHeader>
                     <DialogTitle>Update Profile</DialogTitle>
                     <DialogDescription>
@@ -100,7 +115,7 @@ function UpdateProfile({ open, setOpen }) {
                                 value={input.fullname}
                                 onChange={changeEventHandler}
                                 name="fullname"
-                                required
+                                className="col-span-3"
                             />
                         </div>
                         <div className="items-center gap-4 ">
@@ -113,19 +128,19 @@ function UpdateProfile({ open, setOpen }) {
                                 onChange={changeEventHandler}
                                 name="email"
                                 type="email"
-                                required
+                                className="col-span-3"
                             />
                         </div>
                         <div className="items-center gap-4 ">
                             <Label htmlFor="phoneNumber" className="text-right">
-                                Phone
+                                Phone Number
                             </Label>
                             <Input
                                 id="phoneNumber"
                                 value={input.phoneNumber}
                                 onChange={changeEventHandler}
                                 name="phoneNumber"
-                                type="tel"
+                                className="col-span-3"
                             />
                         </div>
                         <div className="items-center gap-4 ">
@@ -138,6 +153,7 @@ function UpdateProfile({ open, setOpen }) {
                                 onChange={changeEventHandler}
                                 name="bio"
                                 maxLength={160}
+                                className="col-span-3"
                             />
                         </div>
                         <div className="items-center gap-4 ">
@@ -150,6 +166,7 @@ function UpdateProfile({ open, setOpen }) {
                                 onChange={changeEventHandler}
                                 name="skills"
                                 placeholder="E.g., JavaScript, React, Node.js"
+                                className="col-span-3"
                             />
                         </div>
                         <div className="items-center gap-4 ">
@@ -162,6 +179,7 @@ function UpdateProfile({ open, setOpen }) {
                                 onChange={changeFileHandler}
                                 name="profilePicture"
                                 accept="image/*"
+                                className="col-span-3"
                             />
                         </div>
                         <div className="items-center gap-4 ">
@@ -173,14 +191,17 @@ function UpdateProfile({ open, setOpen }) {
                                 type="file"
                                 onChange={changeFileHandler}
                                 name="resume"
-                                accept=".pdf"
+                                accept="application/pdf"
+                                className="col-span-3"
                             />
                         </div>
                     </div>
                     <DialogFooter>
 
                         {
-                            loading ? <Button> <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving changes...</Button> : <Button className="w-full py-3 text-lg font-bold text-white rounded-lg bg-primary hover:bg-primary-dark">
+                            loading ? 
+                            <Button > <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving changes...</Button> : 
+                            <Button className="w-full py-3 text-lg font-bold text-white rounded-lg bg-primary hover:bg-primary-dark" type="submit">
                                 Save changes </Button>
                         }
 

@@ -4,7 +4,7 @@ import Company from "../models/company.model.js";
 const companyRegister = async (req, res) => {
   try {
     // Destructure companyName from request body
-    const { companyName } = req.body;
+    const { companyName, description } = req.body;
 
     // Check if companyName is provided in the request body
     if (!companyName || companyName.trim() === "") {
@@ -12,10 +12,6 @@ const companyRegister = async (req, res) => {
         .status(400)
         .json({ message: "Company name is required", success: false });
     }
-
-    // Log the request body and user ID for debugging
-    console.log("Request Body:", req.body);
-    console.log("User ID from JWT:", req.user._id);
 
     // Check if a company with the same name and userId already exists
     let existingCompany = await Company.findOne({
@@ -33,7 +29,8 @@ const companyRegister = async (req, res) => {
 
     // If no existing company, create a new company
     const newCompany = await Company.create({
-      companyName: companyName,
+      companyName,
+      description,
       userId: req._id,
     });
 

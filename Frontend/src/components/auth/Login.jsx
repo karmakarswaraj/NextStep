@@ -132,8 +132,8 @@ function Login() {
                   <Input
                     type="radio"
                     name="role"
-                    value="recruiter"
-                    checked={input.role === 'recruiter'}
+                    value="Recruiter"
+                    checked={input.role === 'Recruiter'}
                     onChange={changeEventHandler}
                   />
                   <Label className="cursor-pointer">Recruiter</Label>

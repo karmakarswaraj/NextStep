@@ -54,7 +54,7 @@ function Navbar() {
           {/* Navigation Links */}
           <ul className="flex items-center gap-5 font-medium">
             {
-              user && user.role === "recruiter" ? (
+              user && user.role === "Recruiter" ? (
                 <>
                   <li className='hover:text-[#6A38C2] cursor-pointer'><Link to={"/admin/companies"}>Companies</Link></li>
                   <li className='hover:text-[#6A38C2] cursor-pointer'><Link to={"/admin/jobs"}>Jobs</Link></li>
@@ -92,11 +92,11 @@ function Navbar() {
                         />
                       </Avatar>
                       <div className="flex flex-col space-y-1">
-                        <h4 className="text-sm font-semibold leading-none">
-                          Swaraj Karmakar
+                        <h4 className="text-sm font-semibold leading-none text-black">
+                          {user.fullname}
                         </h4>
-                        <p className="text-sm text-muted-foreground">
-                          @karmakarswaraj
+                        <p className="text-sm text-black ">
+                          {user.email}
                         </p>
                       </div>
                     </div>

@@ -7,14 +7,16 @@ const postJob = async (req, res) => {
     // Destructure the job details from the request body
     const {
       title,
-      description,
-      requirements,
-      experience,
+      company,
       location,
       salary,
       jobType,
-      position,
-      company,
+      description,
+      requirements,
+      postedBy,
+      applicationDeadline,
+      benefits,
+      responsibilities,
     } = req.body;
 
     // Extract userId from req.user and validate it
@@ -31,12 +33,13 @@ const postJob = async (req, res) => {
       !title ||
       !description ||
       !requirements ||
-      !experience ||
       !location ||
       !salary ||
       !jobType ||
-      !position ||
-      !company
+      !company||
+      !postedBy || 
+      !benefits || 
+      !responsibilities
     ) {
       return res.status(400).json({
         success: false,
@@ -44,23 +47,24 @@ const postJob = async (req, res) => {
       });
     }
 
-    // Split the requirements string into an array and trim whitespace from each entry
     const requirementsArray = requirements
-      .split(",")
-      .map((item) => item.trim());
+    ? Array.isArray(requirements)
+      ? requirements.map((item) => item.trim())
+      : requirements.split(",").map((item) => item.trim())
+    : [];
 
     // Create a new job posting
     const job = await Job.create({
       title,
       description,
       requirements: requirementsArray,
-      experience,
       location,
       salary,
       jobType,
-      position,
       company,
-      postedBy: userId, // Link the user ID who posted the job
+      postedBy: userId,
+      benefits,
+      responsibilities,
     });
 
     // Return success response with job details

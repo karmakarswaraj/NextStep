@@ -19,34 +19,16 @@ import { setAuthUser, setLoading } from "@/redux/authSlice";
 function UpdateProfile({ open, setOpen }) {
     const { authUser, loading } = useSelector(store => store.auth);
 
-    const { user } = useSelector(store => store.auth);
     const dispatch = useDispatch();
 
     const [input, setInput] = useState({
-        fullname: '',
-        email: '',
-        phoneNumber: '',
-        bio: '',
-        skills: [],
-        profilePicture: '',
-        resume: '',
+        fullname: authUser?.fullname,
+        email: authUser?.email,
+        phoneNumber: authUser?.phoneNumber,
+        bio: authUser?.profile?.bio,
+        skills: authUser?.profile?.skills?.map(skill => skill),
+        file: authUser?.profile?.resume,
     });
-
-    useEffect(() => {
-        if (user) {
-            setInput({
-                fullname: user.fullname || '',
-                email: user.email || '',
-                phoneNumber: user.phoneNumber || '',
-                bio: user.profile?.bio || '',
-                skills: user.profile?.skills || [],
-                profilePicture: user.profile?.profilePic || '',
-                resume: user.profile?.resume || '',
-            });
-        }
-    }, [user]);
-
-
     const changeFileHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.files?.[0] });
     };
@@ -64,17 +46,11 @@ function UpdateProfile({ open, setOpen }) {
         formData.append("email", input.email);
         formData.append("phoneNumber", input.phoneNumber);
         formData.append("bio", input.bio);
-        input.skills.map((skill, index) => {
-            formData.append(`skills[${index}]`, skill);
-        });
+        formData.append('skills', input.skills);
 
         if (input.profilePicture) formData.append("profilePicture", input.profilePicture);
         if (input.resume) formData.append("resume", input.resume);
 
-        for (let pair of formData.entries()) {
-            console.log(pair[0] + ": " + pair[1]);
-        }
-        
         try {
             dispatch(setLoading(true));
 
@@ -199,10 +175,10 @@ function UpdateProfile({ open, setOpen }) {
                     <DialogFooter>
 
                         {
-                            loading ? 
-                            <Button > <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving changes...</Button> : 
-                            <Button className="w-full py-3 text-lg font-bold text-white rounded-lg bg-primary hover:bg-primary-dark" type="submit">
-                                Save changes </Button>
+                            loading ?
+                                <Button > <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving changes...</Button> :
+                                <Button className="w-full py-3 text-lg font-bold text-white rounded-lg bg-primary hover:bg-primary-dark" type="submit">
+                                    Save changes </Button>
                         }
 
                     </DialogFooter>

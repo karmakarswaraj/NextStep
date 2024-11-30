@@ -13,8 +13,8 @@ const router = express.Router(); // Create a new express router instance
 // Route to post a new job (POST request) - Requires authentication
 router.route("/post").post(isAuthenticatedUser, postJob);
 
-// Route to fetch all jobs (GET request) - Requires authentication
-router.route("/find").get(isAuthenticatedUser, getAllJob);
+// Route to fetch all jobs (GET request)
+router.route("/find").get(getAllJob);
 
 // Route to fetch a specific job by ID (GET request) - Requires authentication
 router.route("/find/:id").get(isAuthenticatedUser, getJobId);

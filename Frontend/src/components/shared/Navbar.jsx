@@ -13,11 +13,11 @@ import axios from 'axios';
 import { USER_ENDPOINT_API } from '@/utility/constants';
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
-import {setAuthUser } from "@/redux/authSlice";
+import { setAuthUser } from "@/redux/authSlice";
 
 function Navbar() {
 
-  const { user } = useSelector((state) => state.auth);
+  const { authUser } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -54,7 +54,7 @@ function Navbar() {
           {/* Navigation Links */}
           <ul className="flex items-center gap-5 font-medium">
             {
-              user && user.role === "Recruiter" ? (
+              authUser && authUser.role === "Recruiter" ? (
                 <>
                   <li className='hover:text-[#6A38C2] cursor-pointer'><Link to={"/admin/companies"}>Companies</Link></li>
                   <li className='hover:text-[#6A38C2] cursor-pointer'><Link to={"/admin/jobs"}>Jobs</Link></li>
@@ -70,7 +70,7 @@ function Navbar() {
           </ul>
 
           {/* User Actions */}
-          {user ? (
+          {authUser ? (
             <div className="flex items-center gap-10">
               <Popover>
                 <PopoverTrigger asChild>
@@ -93,10 +93,10 @@ function Navbar() {
                       </Avatar>
                       <div className="flex flex-col space-y-1">
                         <h4 className="text-sm font-semibold leading-none text-black">
-                          {user.fullname}
+                          {authUser.fullname}
                         </h4>
                         <p className="text-sm text-black ">
-                          {user.email}
+                          {authUser.email}
                         </p>
                       </div>
                     </div>

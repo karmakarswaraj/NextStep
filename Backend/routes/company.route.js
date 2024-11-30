@@ -13,7 +13,7 @@ const router = express.Router(); // Create a new express router instance
 router.route("/register").post(isAuthenticatedUser, companyRegister);
 
 // Route to find a company by the authenticated user (GET request) - Requires authentication
-router.route("/find").get(isAuthenticatedUser, getCompany);
+router.route("/find").get(getCompany);
 
 // Route to find a company by its ID (GET request) - Requires authentication
 router.route("/find/:id").get(isAuthenticatedUser, companybyId);

@@ -1,31 +1,40 @@
 import { setAllJobs } from "@/redux/jobSlice";
 import axios from "axios";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { JOB_ENDPOINT_API } from "@/utility/constants";
 
 const useGetAllJobs = () => {
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
+  console.log("Fetching jobs...");
 
-    useEffect(() => {
-        console.log("Fetching jobs...");
-        const fetchAllJobs = async () => {
-          try {
-            const res = await axios.get("http://localhost:8000/api/v1/job/find", {
-              withCredentials: true,
-            });
-
-            console.log(res);
-
-            if (res.data.success) {
-              dispatch(setAllJobs(res.data.jobs)); 
-            }
-          } catch (error) {
-            console.error("Error fetching jobs:", error);
+  useEffect(() => {
+    const fetchAllJobs = async () => {
+      try {
+          const res = await axios.get(`${JOB_ENDPOINT_API}/find`, {
+              withCredentials: true, // This sends cookies with the request
+          });
+  
+          console.log(res);
+  
+          if (res.data.success) {
+              dispatch(setAllJobs(res.data.jobs));
+          } else {
+              console.error("Error response:", res.data.message);
           }
-        };
-        fetchAllJobs();
-      }, [dispatch]);
+      } catch (error) {
+          if (error.response) {
+              console.error("Error response:", error.response.data); // Backend error response
+          } else if (error.request) {
+              console.error("No response received:", error.request); // No response from the server
+          } else {
+              console.error("Error fetching jobs:", error.message); // General error
+          }
+      }
+  };
+  
+    fetchAllJobs();
+  }, []);
 
 };
 

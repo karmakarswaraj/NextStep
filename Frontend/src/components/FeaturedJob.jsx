@@ -1,38 +1,17 @@
 import React from 'react'
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Briefcase, MapPin } from "lucide-react";
+import LatestJobCard from './LatestJobCard';
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 function FeaturedJob() {
-    const jobs = [1, 2, 3, 4];
+    const { allJobs } = useSelector((state) => state.job);
+
     return (
         <section className="py-16 text-white bg-gray-900">
             <div className="container mx-auto">
                 <h2 className="mb-8 text-3xl font-bold text-center">Featured Jobs</h2>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {jobs.map((job) => (
-                        <Card key={job} className="border border-gray-600 rounded-lg shadow-md ">
-                            <CardHeader>
-                                <CardTitle>Software Engineer</CardTitle>
-                                <CardDescription className="text-sm ">TechCorp Inc.</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="flex items-center mb-2">
-                                    <MapPin className="w-4 h-4 mr-2" />
-                                    <span >San Francisco, CA</span>
-                                </div>
-                                <div className="flex items-center">
-                                    <Briefcase className="w-4 h-4 mr-2" />
-                                    <span>Full-time</span>
-                                </div>
-                            </CardContent>
-                            <CardFooter>
-                                <Button variant="ghost" className="w-full text-white bg-black hover:bg-red-600 hover:text-white">
-                                    View Job
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    ))}
+                    {allJobs && allJobs?.slice(0, 3).map((job) => <LatestJobCard job={job} />)}
                 </div>
                 <div className="mt-8 text-center">
                     <div className="flex items-center justify-center gap-4">

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner";
 import { Briefcase, MapPin, DollarSign, Clock, Building, Users, Star, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,7 +55,6 @@ const jobData = {
 };
 
 const JobDetailsPage = () => {
-    const { toast } = useToast()
     const navigate = useNavigate(); // For navigation
     const [isSaved, setIsSaved] = useState(false);
 

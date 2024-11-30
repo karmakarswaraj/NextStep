@@ -50,6 +50,7 @@ function Signup() {
       const res = await axios.post(`${USER_ENDPOINT_API}/register`, formData);
 
       if (res.data.success) {
+        // localStorage.setItem("authToken", res.data.token);
         navigate('/login');
         toast.success(res.data.message);
       }

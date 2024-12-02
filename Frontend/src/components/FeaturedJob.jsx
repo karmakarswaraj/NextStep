@@ -11,7 +11,9 @@ function FeaturedJob() {
             <div className="container mx-auto">
                 <h2 className="mb-8 text-3xl font-bold text-center">Featured Jobs</h2>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {allJobs && allJobs?.slice(0, 3).map((job) => <LatestJobCard job={job} />)}
+                    {
+                        allJobs && allJobs?.slice(0, 3).map((job) => <LatestJobCard key={job._id} job={job} />)
+                    }
                 </div>
                 <div className="mt-8 text-center">
                     <div className="flex items-center justify-center gap-4">

@@ -17,7 +17,7 @@ router.route("/post").post(isAuthenticatedUser, postJob);
 router.route("/find").get(getAllJob);
 
 // Route to fetch a specific job by ID (GET request) - Requires authentication
-router.route("/find/:id").get(isAuthenticatedUser, getJobId);
+router.route("/find/:id").get(getJobId);
 
 // Route to fetch all jobs posted by the admin (GET request) - Requires authentication
 router.route("/find/admin/job").get(isAuthenticatedUser, getAdminJobs);

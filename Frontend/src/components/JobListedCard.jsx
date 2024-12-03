@@ -2,8 +2,11 @@ import React from 'react'
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bookmark, Briefcase, MapPin, DollarSign, Clock } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 function JobListedCard({ job }) {
+    const navigate = useNavigate();
+    
     return (
         <div>
             <Card key={job.id} >
@@ -49,8 +52,8 @@ function JobListedCard({ job }) {
                     </p>
                 </CardContent>
                 <CardFooter>
-                    <Button variant="outline" className="w-full text-white bg-black hover:bg-red-600">
-                        View Job
+                    <Button variant="outline" className="w-full text-white bg-black hover:bg-red-600" onClick={() => {navigate(`/jobs/details/${job._id}`) }}>
+                        View Details
                     </Button>
                 </CardFooter>
             </Card>

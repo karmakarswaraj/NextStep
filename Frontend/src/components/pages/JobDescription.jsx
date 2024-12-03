@@ -1,6 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Briefcase, MapPin, DollarSign, Clock, Building, Users, Star, Share2 } from "lucide-react";
+import axios from "axios";
+import {
+    Briefcase,
+    MapPin,
+    DollarSign,
+    Clock,
+    Building,
+    Users,
+    Star,
+    Share2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -12,94 +22,72 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { useNavigate } from "react-router-dom";
 import Navbar from "../shared/Navbar";
 import Footer from "../shared/Footer";
-
-// Example static data
-const jobData = {
-    id: "job123",
-    title: "Senior Software Engineer",
-    company: "TechCorp Inc.",
-    location: "San Francisco, CA (Remote Option)",
-    salary: "$120,000 - $180,000",
-    jobType: "Full-time",
-    postedDate: "2 weeks ago",
-    applicationDeadline: "2023-12-31",
-    companyLogo: "/placeholder.svg",
-    companySize: "1000-5000 employees",
-    description: "TechCorp Inc. is seeking a talented and motivated Senior Software Engineer to join our innovative team. The ideal candidate will have a strong background in full-stack development and a passion for creating scalable, efficient, and maintainable code.",
-    responsibilities: [
-        "Design and implement new features for our core product",
-        "Collaborate with cross-functional teams to define and implement innovative solutions",
-        "Write clean, efficient, and well-documented code",
-        "Participate in code reviews and mentor junior developers",
-        "Troubleshoot, debug, and upgrade existing systems",
-    ],
-    requirements: [
-        "Bachelor's degree in Computer Science or related field",
-        "5+ years of experience in software development",
-        "Strong proficiency in JavaScript, TypeScript, and React",
-        "Experience with Node.js and Express.js",
-        "Familiarity with cloud platforms (AWS, Azure, or GCP)",
-        "Excellent problem-solving and communication skills",
-    ],
-    benefits: [
-        "Competitive salary and equity package",
-        "Health, dental, and vision insurance",
-        "401(k) plan with company match",
-        "Flexible work hours and remote work options",
-        "Professional development budget",
-        "Generous paid time off",
-    ],
-};
-
-const JobDetailsPage = () => {
-    const navigate = useNavigate(); // For navigation
+import { useNavigate, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import useJobData from "@/hooks/useGetSingleJob.jsx"; // Custom hook
+const JobDescription = () => {
+    const { id } = useParams(); // Get job ID from route
+    const { jobData, isLoading } = useJobData(id); // Use the custom hook
     const [isSaved, setIsSaved] = useState(false);
+    const { authUser } = useSelector((state) => state.auth);
+
+    const isApplied = false;
+
+    const navigate = useNavigate();
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gray-500">
+                <p>Loading job details...</p>
+            </div>
+        );
+    }
 
     const handleApply = () => {
-        toast({
-            title: "Application Submitted",
-            description: "Your application has been successfully submitted.",
-        });
+        if (!authUser) {
+            toast.error("You must be logged in to apply for a job.");
+            return;
+        }
+        toast.success("Application submitted successfully!");
+        //MORE TO BE ADDED
     };
 
     const handleSaveJob = () => {
+        if (!authUser) {
+            toast.error("You must be logged in to save a job.");
+            return;
+        }
         setIsSaved(!isSaved);
-        toast({
-            title: isSaved ? "Job Removed" : "Job Saved",
-            description: isSaved
-                ? "This job has been removed from your saved list."
-                : "This job has been added to your saved list.",
-        });
+        toast.success(isSaved ? "Job Removed from saved list." : "Job Added to saved list.");
     };
 
     const handleShare = () => {
         navigator.clipboard.writeText(window.location.href);
-        toast({
-            title: "Link Copied",
-            description: "Job link has been copied to clipboard.",
-        });
+        toast.success("Job link has been copied to clipboard.");
     };
 
     return (
-        <div className="min-h-screen bg-[#67794d]">
+        <div className="min-h-screen text-white bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900">
             <Navbar />
-            <div className="container px-4 py-8 mx-auto ">
-                <div className="flex flex-col gap-8 lg:flex-row ">
+            <div className="container px-4 py-8 mx-auto text-white">
+                <div className="flex flex-col gap-8 lg:flex-row">
                     {/* Main Content */}
-                    <div className="w-full lg:w-2/3 ">
+                    <div className="w-full lg:w-2/3">
                         <Card className="bg-[#121212] text-white">
                             <CardHeader>
-                                <div className="flex items-start justify-between ">
+                                <div className="flex items-start justify-between">
                                     <div>
-                                        <CardTitle className="text-3xl font-bold">{jobData.title}</CardTitle>
-                                        <CardDescription className="text-xl">{jobData.company}</CardDescription>
+                                        <CardTitle className="text-3xl font-bold">
+                                            {jobData.title}
+                                        </CardTitle>
+                                        <CardDescription className="text-xl text-red-500">
+                                            {jobData.company.companyName}
+                                        </CardDescription>
                                     </div>
                                     <img
-                                        src={jobData.companyLogo}
-                                        alt={`${jobData.company} logo`}
+                                        src={jobData.company.companyLogo || "/default-logo.png"}
+                                        alt={`${jobData.company.companyName} logo`}
                                         width={64}
                                         height={64}
                                         className="rounded-md"
@@ -108,21 +96,21 @@ const JobDetailsPage = () => {
                             </CardHeader>
                             <CardContent>
                                 <div className="flex flex-wrap gap-4 mb-6">
-                                    <Badge variant="secondary" className="flex items-center">
+                                    <Badge variant="secondary" className="flex items-center bg-yellow-500">
                                         <MapPin className="w-4 h-4 mr-1" />
                                         {jobData.location}
                                     </Badge>
-                                    <Badge variant="secondary" className="flex items-center">
-                                        <Briefcase className="w-4 h-4 mr-1" />
+                                    <Badge variant="secondary" className="flex items-center bg-yellow-500">
+                                        <Briefcase className="w-4 h-4 mr-1 " />
                                         {jobData.jobType}
                                     </Badge>
-                                    <Badge variant="secondary" className="flex items-center">
+                                    <Badge variant="secondary" className="flex items-center bg-yellow-500">
                                         <DollarSign className="w-4 h-4 mr-1" />
                                         {jobData.salary}
                                     </Badge>
-                                    <Badge variant="secondary" className="flex items-center">
+                                    <Badge variant="secondary" className="flex items-center bg-yellow-500">
                                         <Clock className="w-4 h-4 mr-1" />
-                                        Posted {jobData.postedDate}
+                                        Posted on {new Date(jobData.createdAt).toDateString()}
                                     </Badge>
                                 </div>
                                 <Separator className="my-6" />
@@ -162,12 +150,20 @@ const JobDetailsPage = () => {
                                 </div>
                             </CardContent>
                             <CardFooter className="flex justify-between">
-                                <Button onClick={handleApply} size="lg">Apply Now</Button>
-                                <div className="flex gap-2">
-                                    <Button variant="outline" size="icon" onClick={handleSaveJob}>
-                                        <Star className={`h-4 w-4 ${isSaved ? 'fill-yellow-400' : ''}`} />
+                                {isApplied === "false" ? (
+                                    <Button onClick={handleApply} size="lg" className="bg-red-600 hover:bg-white hover:text-black">
+                                        Apply Now
                                     </Button>
-                                    <Button variant="outline" size="icon" onClick={handleShare}>
+                                ) : (
+                                    <Button size="lg" className="text-white bg-gray-600 cursor-not-allowed">
+                                        Applied
+                                    </Button>
+                                )}
+                                <div className="flex gap-2">
+                                    <Button variant="outline" size="icon" onClick={handleSaveJob} className="bg-red-600">
+                                        <Star className={`h-4 w-4 ${isSaved ? "fill-yellow-400" : ""}`} />
+                                    </Button>
+                                    <Button variant="outline" size="icon" onClick={handleShare} className="bg-red-600">
                                         <Share2 className="w-4 h-4" />
                                     </Button>
                                 </div>
@@ -176,21 +172,20 @@ const JobDetailsPage = () => {
                     </div>
 
                     {/* Sidebar */}
-                    {/* (Repeat similar sidebar logic for React) */}
                     <div className="w-full lg:w-1/3">
-                        <Card>
+                        <Card className="bg-[#121212] text-white">
                             <CardHeader>
                                 <CardTitle>Company Information</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="space-y-4">
+                                <div className="space-y-4 ">
                                     <div className="flex items-center">
                                         <Building className="w-4 h-4 mr-2" />
-                                        <span>{jobData.company}</span>
+                                        <span>{jobData.company.companyName}</span>
                                     </div>
                                     <div className="flex items-center">
                                         <Users className="w-4 h-4 mr-2" />
-                                        <span>{jobData.companySize}</span>
+                                        <span>{jobData.companySize || "N/A"}</span>
                                     </div>
                                     <div className="flex items-center">
                                         <MapPin className="w-4 h-4 mr-2" />
@@ -199,37 +194,23 @@ const JobDetailsPage = () => {
                                 </div>
                             </CardContent>
                             <CardFooter>
-                                <Button variant="outline" className="w-full">View Company Profile</Button>
+                                <Button variant="outline" className="w-full bg-yellow-600 ">
+                                    {/*  onClick={() => { navigate(`${jobData.website}`) }} */}
+                                    View Company Profile
+                                </Button>
                             </CardFooter>
                         </Card>
 
-                        <Card className="mt-6">
-                            <CardHeader>
+                        <Card className="mt-6 bg-[#121212] text-white">
+                            <CardHeader >
                                 <CardTitle>Application Deadline</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p className="text-lg font-semibold">{jobData.applicationDeadline}</p>
+                                <p className="text-lg font-semibold">
+                                    {new Date(jobData.applicationDeadline).toDateString()}
+                                </p>
                             </CardContent>
                         </Card>
-
-                        {/* <Card className="mt-6">
-                        <CardHeader>
-                            <CardTitle>Similar Jobs</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <ul className="space-y-2">
-                                <li>
-                                    <a href="#" className="text-blue-600 hover:underline">Full Stack Developer at InnoTech</a>
-                                </li>
-                                <li>
-                                    <a href="#" className="text-blue-600 hover:underline">Senior React Developer at WebSolutions</a>
-                                </li>
-                                <li>
-                                    <a href="#" className="text-blue-600 hover:underline">Software Architect at DataDriven Inc.</a>
-                                </li>
-                            </ul>
-                        </CardContent>
-                    </Card> */}
                     </div>
                 </div>
             </div>
@@ -238,4 +219,4 @@ const JobDetailsPage = () => {
     );
 };
 
-export default JobDetailsPage;
+export default JobDescription;

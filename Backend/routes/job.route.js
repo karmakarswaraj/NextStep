@@ -27,3 +27,5 @@ router.route("/delete/:id").delete(isAuthenticatedUser, deleteJob); // This is t
 
 // Export the router to be used in the main app
 export default router;
+
+// job/find/:id  67473990d64923b2e08179bc

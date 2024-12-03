@@ -4,8 +4,12 @@ const jobSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     company: {
-      companyId: {type: mongoose.Schema.Types.ObjectId, ref: "Company", required: true},
-      companyName: {type: String, required: true},
+      companyId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Company",
+        required: true,
+      },
+      companyName: { type: String, required: true },
     },
     location: { type: String, required: true },
     salary: { type: String },
@@ -16,6 +20,7 @@ const jobSchema = new mongoose.Schema(
     },
     description: { type: String, required: true },
     requirements: { type: [String], required: true },
+    website: { type: String },
     postedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     applicationDeadline: {
       type: Date,
@@ -26,12 +31,12 @@ const jobSchema = new mongoose.Schema(
     responsibilities: {
       type: [String],
     },
-    // applications: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "Application",
-    //   },
-    // ],
+    applications: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Application",
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -52,6 +57,5 @@ jobSchema.pre("save", async function (next) {
     next();
   }
 });
-
 
 export default mongoose.model("Job", jobSchema);

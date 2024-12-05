@@ -5,6 +5,8 @@ import User from "../models/user.model.js";
 const isAuthenticatedUser = async (req, res, next) => {
   try {
     // Check if the token is present in the cookies
+    console.log('Headers:', req.headers);  // Log headers to verify cookies are sent
+    console.log('Cookies:', req.cookies);  // Log cookies to check their content
     const { token } = req.cookies;
 
     // If no token is found, return an error message
@@ -17,7 +19,6 @@ const isAuthenticatedUser = async (req, res, next) => {
 
     // Decode the token using JWT to extract user information (userId)
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    //console.log("Decoded JWT:", decoded); // Log the decoded token for debugging
 
     // Find the user by userId, which is stored in the decoded token
     const user = await User.findById(decoded.userId);
@@ -35,20 +36,21 @@ const isAuthenticatedUser = async (req, res, next) => {
     // Proceed to the next middleware or route handler
     next();
   } catch (error) {
-    // Log the error message for debugging purposes
-    console.error("Error in isAuthenticatedUser middleware:", error.message);
-
-    // Customize error message based on the type of JWT error
-    const errorMessage =
-      error.name === "TokenExpiredError"
-        ? "Session expired. Please login again."
-        : "Invalid token. Please login.";
-
-    // Return an error response if the token is invalid or expired
-    return res.status(401).json({
-      success: false,
-      message: errorMessage,
-    });
+    if (error.name === "JsonWebTokenError") {
+      // Handle general JWT errors (e.g., invalid signature, malformed token)
+      console.error("JWT error:", error.message);
+      return res.status(401).json({
+        success: false,
+        message: "Invalid token. Please login.",
+      });
+    } else if (error.name === "TokenExpiredError") {
+      // Handle specific TokenExpiredError
+      // ... (existing code)
+    } else {
+      // Handle unexpected errors
+      console.error("Unexpected error:", error.message);
+      // You might want to return a generic error or log for debugging
+    }
   }
 };
 

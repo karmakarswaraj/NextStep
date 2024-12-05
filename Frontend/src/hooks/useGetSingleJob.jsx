@@ -10,7 +10,7 @@ const useGetSingleJob = (jobId) => {
     useEffect(() => {
         const fetchJobData = async () => {
             try {
-                const response = await axios.get(`${JOB_ENDPOINT_API}/find/${jobId}`);
+                const response = await axios.get(`${JOB_ENDPOINT_API}/find/${jobId}`,{ withCredentials: true });
                 if (response.data && response.data.job) {
                     setJobData(response.data.job);
                 } else {

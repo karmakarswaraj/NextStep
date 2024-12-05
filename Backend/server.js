@@ -30,16 +30,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Set up CORS options for allowing cross-origin requests from the frontend
 const corsOptions = {
-  origin: true, // Allow requests from the specified frontend URL
+  origin: "http://localhost:5173", // Allow requests from the specified frontend URL
   credentials: true, // Allow sending cookies with requests
 };
 // Apply the CORS middleware with the specified options
 app.use(cors(corsOptions));
-
-// Define a simple route for the root of the API (for testing)
-app.get("/", (req, res) => {
-  res.send("Hello World!"); // Respond with "Hello World!" message
-});
 
 // Define routes for different API endpoints
 app.use("/api/v1/user", userRoute); // User-related routes

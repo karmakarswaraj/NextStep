@@ -102,6 +102,7 @@ const userLogin = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true, // Prevents JavaScript access to the cookie
       sameSite: "None", // Prevents CSRF attacks
+      maxAge: 24 * 60 * 60 * 1000, // Expires in 1 day
     });
 
     // Return success response with user data and message

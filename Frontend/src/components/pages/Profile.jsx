@@ -13,9 +13,6 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import axios from "axios";
-import path from "path";
-import fs from "fs";
 import { useSelector } from "react-redux";
 import Footer from "../shared/Footer";
 import Navbar from "../shared/Navbar";

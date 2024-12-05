@@ -24,8 +24,6 @@ function JobListedCard({ job }) {
                             <CardDescription>{job.description}</CardDescription>
 
                         </div>
-
-                        {/* <Button variant="outline" ><Bookmark/></Button> */}
                     </div>
                 </CardHeader>
                 <CardContent>

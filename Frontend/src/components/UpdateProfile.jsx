@@ -15,7 +15,7 @@ import { Loader2 } from "lucide-react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setAuthUser, setLoading } from "@/redux/authSlice";
-
+import { USER_ENDPOINT_API } from "../utility/constants";
 function UpdateProfile({ open, setOpen }) {
     const { authUser, loading } = useSelector(store => store.auth);
 
@@ -39,37 +39,48 @@ function UpdateProfile({ open, setOpen }) {
 
     const submitHandler = async (e) => {
         e.preventDefault();
-
+    
         const formData = new FormData();
-
         formData.append("fullname", input.fullname);
         formData.append("email", input.email);
         formData.append("phoneNumber", input.phoneNumber);
         formData.append("bio", input.bio);
-        formData.append('skills', input.skills);
-
+        formData.append("skills", input.skills);
+    
         if (input.profilePicture) formData.append("profilePicture", input.profilePicture);
         if (input.resume) formData.append("resume", input.resume);
-
+    
         try {
             dispatch(setLoading(true));
-
+    
             const res = await axios.post(`${USER_ENDPOINT_API}/profile/update`, formData, {
                 headers: { "Content-Type": "multipart/form-data" },
-                withCredentials: true,
+                withCredentials: true, // Make sure cookies are sent with the request
             });
-
+            console.log(res.data.success);
+            
             if (res.data.success) {
+                // Update the authUser with the updated data
                 dispatch(setAuthUser(res.data.user));
+    
+                // If the token is updated or required, handle it here (e.g., store in localStorage or Redux)
+                if (res.data.token) {
+                    // Save token if available (this could also be done in the backend if necessary)
+                    localStorage.setItem("token", res.data.token); 
+                }
+    
                 toast.success("Profile updated successfully!");
             }
         } catch (error) {
-            console.log(error);
+            console.error("Error updating profile:", error);
+            toast.error("Failed to update profile. Please try again.");
         } finally {
             dispatch(setLoading(false)); // Reset loading state
         }
-        setOpen(false);
+    
+        setOpen(false); // Close modal or dialog box after update
     };
+    
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>

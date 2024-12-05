@@ -31,6 +31,7 @@ const jobSchema = new mongoose.Schema(
     responsibilities: {
       type: [String],
     },
+    openings: { type: Number },
     applications: [
       {
         type: mongoose.Schema.Types.ObjectId,

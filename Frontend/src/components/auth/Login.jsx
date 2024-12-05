@@ -15,7 +15,7 @@ function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { loading, authUser } = useSelector((state) => state.auth); //1
+  const { loading } = useSelector((state) => state.auth); //1
 
   // Consolidate `role` in input state itself
   const [input, setInput] = useState({
@@ -53,16 +53,11 @@ function Login() {
         // localStorage.setItem("authToken", res.data.token);
         dispatch(setAuthUser(res.data.user)); // Set the user data in Redux store
         
-        if(res.data.user.role === "Recruiter"){
-          navigate("/admin/companies");
-        }else{
-           navigate("/"); // Redirect to the home page after successful login
-        }
-        toast.success(res.data.message || "Login successful"); // Show a success message
+        navigate(res.data.user.role === "Recruiter" ? "/admin/companies" : "/");
+        toast.success(res.data.message || "Login successful");
       }
     } catch (error) {
       // Handle error properly: Network errors, Axios errors, etc.
-      console.error("Login failed:", error);
       toast.error(res.data.message || "Login failed");
     } finally {
       dispatch(setLoading(false)); // Stop the loading indicator

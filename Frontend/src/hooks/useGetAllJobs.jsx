@@ -6,7 +6,6 @@ import { JOB_ENDPOINT_API } from "@/utility/constants";
 
 const useGetAllJobs = () => {
   const dispatch = useDispatch();
-  console.log("Fetching jobs...");
 
   useEffect(() => {
     const fetchAllJobs = async () => {
@@ -14,9 +13,7 @@ const useGetAllJobs = () => {
           const res = await axios.get(`${JOB_ENDPOINT_API}/find`, {
               withCredentials: true, // This sends cookies with the request
           });
-  
-          console.log(res);
-  
+    
           if (res.data.success) {
               dispatch(setAllJobs(res.data.jobs));
           } else {

@@ -27,15 +27,21 @@ import Footer from "../shared/Footer";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import useJobData from "@/hooks/useGetSingleJob.jsx"; // Custom hook
+import { APPLICATION_ENDPOINT_API } from "@/utility/constants";
+import useGetSingleJob from "@/hooks/useGetSingleJob.jsx";
+
 const JobDescription = () => {
     const { id } = useParams(); // Get job ID from route
+
     const { jobData, isLoading } = useJobData(id); // Use the custom hook
     const [isSaved, setIsSaved] = useState(false);
     const { authUser } = useSelector((state) => state.auth);
 
-    const isApplied = false;
-
     const navigate = useNavigate();
+
+    // const isApplied = useGetSingleJob.application.some(application => application.applicant === authUser._id) || false;
+    // const isApplied = true;
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gray-500">
@@ -44,14 +50,37 @@ const JobDescription = () => {
         );
     }
 
-    const handleApply = () => {
+    const handleApply = async () => {
         if (!authUser) {
             toast.error("You must be logged in to apply for a job.");
             return;
         }
-        toast.success("Application submitted successfully!");
-        //MORE TO BE ADDED
+    
+        try {
+            const response = await axios.post(
+                `${APPLICATION_ENDPOINT_API}/apply/${id}`, // Endpoint to apply for the job
+                {}, // Request body (if any)
+                {
+                    withCredentials: true,  // This sends cookies with the request
+                }
+            );
+    
+            if (response.data.success) {
+                toast.success("Application submitted successfully!");
+                // Update local UI state if needed, e.g., set a flag to disable the apply button
+            } else {
+                toast.error(response.data.message || "Failed to apply for the job.");
+            }
+        } catch (error) {
+            if (error.response && error.response.data) {
+                toast.error(error.response.data.message || "An error occurred.");
+            } else {
+                toast.error("Unable to apply for the job. Please try again later.");
+            }
+            console.error("Error while applying for the job:", error);
+        }
     };
+    
 
     const handleSaveJob = () => {
         if (!authUser) {
@@ -67,6 +96,29 @@ const JobDescription = () => {
         toast.success("Job link has been copied to clipboard.");
     };
 
+    // function printTokenFromCookies() {
+    //     // Helper function to get a specific cookie by name
+    //     function getCookie(name) {
+    //       const cookies = document.cookie.split(";"); // Split cookies by `;`
+    //       for (let cookie of cookies) {
+    //         const [key, value] = cookie.trim().split("="); // Trim whitespace and split key-value
+    //         if (key === name) {
+    //           return decodeURIComponent(value); // Decode and return the cookie value
+    //         }
+    //       }
+    //       return null; // Return null if cookie not found
+    //     }
+      
+    //     // Replace 'token' with the actual name of your token cookie
+    //     const token = getCookie("token");
+    //     if (token) {
+    //       console.log("Token:", token);
+    //     } else {
+    //       console.error("Token not found in cookies.");
+    //     }
+    //   }
+      
+      
     return (
         <div className="min-h-screen text-white bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900">
             <Navbar />
@@ -150,15 +202,16 @@ const JobDescription = () => {
                                 </div>
                             </CardContent>
                             <CardFooter className="flex justify-between">
-                                {isApplied === "false" ? (
-                                    <Button onClick={handleApply} size="lg" className="bg-red-600 hover:bg-white hover:text-black">
-                                        Apply Now
-                                    </Button>
-                                ) : (
-                                    <Button size="lg" className="text-white bg-gray-600 cursor-not-allowed">
-                                        Applied
-                                    </Button>
-                                )}
+                                
+                                        <Button size="lg" className="bg-gray-600 pointer-events-none">
+                                            Applied
+                                        </Button>
+                                   
+                                        <Button onClick={handleApply} size="lg" className="bg-red-600 hover:bg-white hover:text-black">
+                                            Apply Now
+                                        </Button>
+                                   
+                                
                                 <div className="flex gap-2">
                                     <Button variant="outline" size="icon" onClick={handleSaveJob} className="bg-red-600">
                                         <Star className={`h-4 w-4 ${isSaved ? "fill-yellow-400" : ""}`} />
@@ -185,7 +238,7 @@ const JobDescription = () => {
                                     </div>
                                     <div className="flex items-center">
                                         <Users className="w-4 h-4 mr-2" />
-                                        <span>{jobData.companySize || "N/A"}</span>
+                                        <span>{jobData.opennings || "N/A"}</span>
                                     </div>
                                     <div className="flex items-center">
                                         <MapPin className="w-4 h-4 mr-2" />

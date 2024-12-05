@@ -47,7 +47,9 @@ function Signup() {
     }
 
     try {
-      const res = await axios.post(`${USER_ENDPOINT_API}/register`, formData);
+      const res = await axios.post(`${USER_ENDPOINT_API}/register`, formData,{
+        withCredentials: true,
+      });
 
       if (res.data.success) {
         // localStorage.setItem("authToken", res.data.token);

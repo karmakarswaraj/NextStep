@@ -1,7 +1,7 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import getDataUri from "../utils/dataUri.js";
+import {uploadFiles} from "./fileUploadController.js";
 
 // Function to register a new user
 const userRegister = async (req, res) => {
@@ -102,6 +102,7 @@ const userLogin = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true, // Prevents JavaScript access to the cookie
       sameSite: "None", // Prevents CSRF attacks
+      secure: true,
       maxAge: 24 * 60 * 60 * 1000, // Expires in 1 day
     });
 
@@ -139,38 +140,24 @@ const updateUserProfile = async (req, res) => {
     // Destructure updated user details from the request body
     const { fullname, email, phoneNumber, bio, skills } = req.body;
 
-    // Destructure files from req.files, with safe defaults
-    const profilePicture = req.files?.profilePicture || [];
-    const resume = req.files?.resume || [];
-
-    let profilePicUrl = "";
-    let resumeUrl = "";
-
-    // Handle profile picture upload
-    if (profilePicture[0]) {
-      const profilePictureUri = getDataUri(profilePicture[0]);
-      const profilePicUploadResponse = await cloudinary.uploader.upload(
-        profilePictureUri.content
-      );
-      profilePicUrl = profilePicUploadResponse.secure_url;
-    }
-
-    // Handle resume upload
-    if (resume[0]) {
-      const resumeUri = getDataUri(resume[0]);
-      const resumeUploadResponse = await cloudinary.uploader.upload(
-        resumeUri.content,
-        { resource_type: "raw" } // For non-image files like PDFs
-      );
-      resumeUrl = resumeUploadResponse.secure_url;
-    }
-
     // Convert skills to an array if it's a comma-separated string
     let skillArray = [];
     if (skills) {
       skillArray = Array.isArray(skills)
         ? skills.map((skill) => skill.trim())
         : skills.split(",").map((skill) => skill.trim());
+    }
+
+    // Handle file uploads if any
+    let profilePicUrl = "";
+    let resumeUrl = "";
+
+    if (req.files) {
+      const fileUploadResponse = await uploadFiles(req, res); // Call the uploadFiles function to handle file uploads
+
+      // Retrieve the file URLs from the response and assign them
+      profilePicUrl = fileUploadResponse.profilePicUrl || "";
+      resumeUrl = fileUploadResponse.resumeUrl || "";
     }
 
     // Find the user in the database
@@ -193,7 +180,7 @@ const updateUserProfile = async (req, res) => {
     if (profilePicUrl) user.profile.profilePic = profilePicUrl;
     if (resumeUrl) {
       user.profile.resume = resumeUrl;
-      user.profile.resumeName = resume[0]?.originalname || "resume.pdf"; // Fallback file name
+      user.profile.resumeName = req.files?.resume[0]?.originalname || "resume.pdf"; // Fallback file name
     }
 
     // Save the updated user

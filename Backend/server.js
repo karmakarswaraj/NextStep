@@ -32,6 +32,8 @@ app.use(express.urlencoded({ extended: true }));
 const corsOptions = {
   origin: "http://localhost:5173", // Allow requests from the specified frontend URL
   credentials: true, // Allow sending cookies with requests
+  
+
 };
 // Apply the CORS middleware with the specified options
 app.use(cors(corsOptions));

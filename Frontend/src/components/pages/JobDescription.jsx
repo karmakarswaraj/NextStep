@@ -24,27 +24,30 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import Navbar from "../shared/Navbar";
 import Footer from "../shared/Footer";
-import { useNavigate, useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
-import useJobData from "@/hooks/useGetSingleJob.jsx"; // Custom hook
+import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { APPLICATION_ENDPOINT_API } from "@/utility/constants";
-import useGetSingleJob from "@/hooks/useGetSingleJob.jsx";
+import { setSingleJobById } from "@/redux/jobSlice";
+import { JOB_ENDPOINT_API } from "@/utility/constants";
 
 const JobDescription = () => {
-    const { id } = useParams(); // Get job ID from route
 
-    const { jobData, isLoading } = useJobData(id); // Use the custom hook
+    // const { jobData,  } = useGetSingleJob(id); // Use the custom hook
     const [isSaved, setIsSaved] = useState(false);
+    // const [isLoading, setIsLoading] = useState(true);
+
+    const { singleJobById } = useSelector((state) => state.job);
     const { authUser } = useSelector((state) => state.auth);
+    const isIntiallyApplied = singleJobById?.applications?.some(application => application.applicant === authUser?._id) || false;
+    const [isApplied, setIsApplied] = useState(isIntiallyApplied);
 
-    const navigate = useNavigate();
+    
 
-    // const isApplied = useGetSingleJob.application.some(application => application.applicant === authUser._id) || false;
-    // const isApplied = true;
-
-    if (isLoading) {
+    const { id } = useParams(); // Get job ID from route
+    const dispatch = useDispatch();
+    if (!singleJobById) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-500">
+            <div className="flex items-center justify-center min-h-screen text-white bg-gray-500">
                 <p>Loading job details...</p>
             </div>
         );
@@ -55,32 +58,59 @@ const JobDescription = () => {
             toast.error("You must be logged in to apply for a job.");
             return;
         }
-    
+
         try {
-            const response = await axios.post(
+            const res = await axios.post(
                 `${APPLICATION_ENDPOINT_API}/apply/${id}`, // Endpoint to apply for the job
                 {}, // Request body (if any)
                 {
                     withCredentials: true,  // This sends cookies with the request
                 }
             );
-    
-            if (response.data.success) {
+
+            if (res.data.success) {
+                setIsApplied(true);
+                const updatedSingleJob = { ...singleJobById, applications: [...singleJobById.applications, { applicant: authUser?._id }] }; // Update the applications array in the job data
+                dispatch(setSingleJobById(updatedSingleJob));
                 toast.success("Application submitted successfully!");
                 // Update local UI state if needed, e.g., set a flag to disable the apply button
             } else {
-                toast.error(response.data.message || "Failed to apply for the job.");
+                toast.error(res.data.message || "Failed to apply for the job.");
             }
         } catch (error) {
-            if (error.response && error.response.data) {
-                toast.error(error.response.data.message || "An error occurred.");
+            if (error.res && error.res.data) {
+                toast.error(error.res.data.message || "An error occurred.");
             } else {
                 toast.error("Unable to apply for the job. Please try again later.");
             }
             console.error("Error while applying for the job:", error);
         }
+
     };
-    
+
+    //HOOK
+    useEffect(() => {
+        const fetchJobData = async () => {
+            try {
+                const response = await axios.get(`${JOB_ENDPOINT_API}/find/${id}`, { withCredentials: true });
+                if (response.data && response.data.job) {
+
+                    dispatch(setSingleJobById(response.data.job));
+                    setIsApplied(response.data.job.applications.some(application => application.applicant === authUser?._id));
+                    // Check if the user has already applied for the job
+                } else {
+                    toast.error("Job details not found.");
+                }
+            } catch (error) {
+                toast.error("Failed to fetch job details.");
+                console.error("Error fetching job details:", error);
+            }
+        };
+
+        if (id) {
+            fetchJobData();
+        }
+    }, [id, dispatch, authUser?._id]);
 
     const handleSaveJob = () => {
         if (!authUser) {
@@ -96,29 +126,23 @@ const JobDescription = () => {
         toast.success("Job link has been copied to clipboard.");
     };
 
-    // function printTokenFromCookies() {
-    //     // Helper function to get a specific cookie by name
-    //     function getCookie(name) {
-    //       const cookies = document.cookie.split(";"); // Split cookies by `;`
-    //       for (let cookie of cookies) {
-    //         const [key, value] = cookie.trim().split("="); // Trim whitespace and split key-value
-    //         if (key === name) {
-    //           return decodeURIComponent(value); // Decode and return the cookie value
-    //         }
-    //       }
-    //       return null; // Return null if cookie not found
-    //     }
-      
-    //     // Replace 'token' with the actual name of your token cookie
-    //     const token = getCookie("token");
-    //     if (token) {
-    //       console.log("Token:", token);
-    //     } else {
-    //       console.error("Token not found in cookies.");
-    //     }
-    //   }
-      
-      
+    const {
+        title,
+        company,
+        location,
+        jobType,
+        salary,
+        createdAt,
+        description,
+        responsibilities,
+        requirements,
+        benefits,
+        applicationDeadline,
+        applications,
+        openings,
+    } = singleJobById;
+    
+
     return (
         <div className="min-h-screen text-white bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900">
             <Navbar />
@@ -131,15 +155,15 @@ const JobDescription = () => {
                                 <div className="flex items-start justify-between">
                                     <div>
                                         <CardTitle className="text-3xl font-bold">
-                                            {jobData.title}
+                                            {title}
                                         </CardTitle>
                                         <CardDescription className="text-xl text-red-500">
-                                            {jobData.company.companyName}
+                                            {company.companyName}
                                         </CardDescription>
                                     </div>
                                     <img
-                                        src={jobData.company.companyLogo || "/default-logo.png"}
-                                        alt={`${jobData.company.companyName} logo`}
+                                        // src={jobData.company.companyLogo || "/default-logo.png"}
+                                        // alt={`${jobData.company.companyName} logo`}
                                         width={64}
                                         height={64}
                                         className="rounded-md"
@@ -150,19 +174,19 @@ const JobDescription = () => {
                                 <div className="flex flex-wrap gap-4 mb-6">
                                     <Badge variant="secondary" className="flex items-center bg-yellow-500">
                                         <MapPin className="w-4 h-4 mr-1" />
-                                        {jobData.location}
+                                        {location}
                                     </Badge>
                                     <Badge variant="secondary" className="flex items-center bg-yellow-500">
                                         <Briefcase className="w-4 h-4 mr-1 " />
-                                        {jobData.jobType}
+                                        {jobType}
                                     </Badge>
                                     <Badge variant="secondary" className="flex items-center bg-yellow-500">
                                         <DollarSign className="w-4 h-4 mr-1" />
-                                        {jobData.salary}
+                                        {salary}
                                     </Badge>
                                     <Badge variant="secondary" className="flex items-center bg-yellow-500">
                                         <Clock className="w-4 h-4 mr-1" />
-                                        Posted on {new Date(jobData.createdAt).toDateString()}
+                                        Posted on {new Date(createdAt).toDateString()}
                                     </Badge>
                                 </div>
                                 <Separator className="my-6" />
@@ -170,13 +194,13 @@ const JobDescription = () => {
                                 <div className="space-y-6">
                                     <div>
                                         <h3 className="mb-2 text-xl font-semibold">Job Description</h3>
-                                        <p>{jobData.description}</p>
+                                        <p>{description}</p>
                                     </div>
 
                                     <div>
                                         <h3 className="mb-2 text-xl font-semibold">Responsibilities</h3>
                                         <ul className="pl-5 space-y-1 list-disc">
-                                            {jobData.responsibilities.map((item, index) => (
+                                            {responsibilities.map((item, index) => (
                                                 <li key={index}>{item}</li>
                                             ))}
                                         </ul>
@@ -185,7 +209,7 @@ const JobDescription = () => {
                                     <div>
                                         <h3 className="mb-2 text-xl font-semibold">Requirements</h3>
                                         <ul className="pl-5 space-y-1 list-disc">
-                                            {jobData.requirements.map((item, index) => (
+                                            {requirements.map((item, index) => (
                                                 <li key={index}>{item}</li>
                                             ))}
                                         </ul>
@@ -194,7 +218,7 @@ const JobDescription = () => {
                                     <div>
                                         <h3 className="mb-2 text-xl font-semibold">Benefits</h3>
                                         <ul className="pl-5 space-y-1 list-disc">
-                                            {jobData.benefits.map((item, index) => (
+                                            {benefits.map((item, index) => (
                                                 <li key={index}>{item}</li>
                                             ))}
                                         </ul>
@@ -202,16 +226,11 @@ const JobDescription = () => {
                                 </div>
                             </CardContent>
                             <CardFooter className="flex justify-between">
-                                
-                                        <Button size="lg" className="bg-gray-600 pointer-events-none">
-                                            Applied
-                                        </Button>
-                                   
-                                        <Button onClick={handleApply} size="lg" className="bg-red-600 hover:bg-white hover:text-black">
-                                            Apply Now
-                                        </Button>
-                                   
-                                
+                                <Button onClick={isApplied ? null : handleApply}
+                                    disabled={isApplied}
+                                    variant="outline" size="lg" className={`rounded-lg ${isApplied ? 'bg-gray-500 cursor-not-allowed' : 'bg-red-600 hover:bg-white hover:text-black'}`}>
+                                    {isApplied ? "Applied" : "Apply Now"}
+                                </Button>
                                 <div className="flex gap-2">
                                     <Button variant="outline" size="icon" onClick={handleSaveJob} className="bg-red-600">
                                         <Star className={`h-4 w-4 ${isSaved ? "fill-yellow-400" : ""}`} />
@@ -231,20 +250,21 @@ const JobDescription = () => {
                                 <CardTitle>Company Information</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="space-y-4 ">
+                                <div className="space-y-3">
                                     <div className="flex items-center">
-                                        <Building className="w-4 h-4 mr-2" />
-                                        <span>{jobData.company.companyName}</span>
+                                        <Building className="w-5 h-5 mr-2" />
+                                        <span>{company.companyName}</span>
                                     </div>
                                     <div className="flex items-center">
-                                        <Users className="w-4 h-4 mr-2" />
-                                        <span>{jobData.opennings || "N/A"}</span>
+                                        <Users className="w-5 h-5 mr-2" />
+                                        <span>{openings}</span>
                                     </div>
                                     <div className="flex items-center">
-                                        <MapPin className="w-4 h-4 mr-2" />
-                                        <span>{jobData.location}</span>
+                                        <MapPin className="w-5 h-5 mr-2" />
+                                        <span>{location}</span>
                                     </div>
                                 </div>
+
                             </CardContent>
                             <CardFooter>
                                 <Button variant="outline" className="w-full bg-yellow-600 ">
@@ -252,18 +272,22 @@ const JobDescription = () => {
                                     View Company Profile
                                 </Button>
                             </CardFooter>
-                        </Card>
 
+                        </Card>
                         <Card className="mt-6 bg-[#121212] text-white">
                             <CardHeader >
                                 <CardTitle>Application Deadline</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <p className="text-lg font-semibold">
-                                    {new Date(jobData.applicationDeadline).toDateString()}
+                                    {new Date(applicationDeadline).toDateString()}
+                                </p>
+                                <p className="text-lg font-semibold">
+                                    Total Applicants : {applications.length}
                                 </p>
                             </CardContent>
                         </Card>
+
                     </div>
                 </div>
             </div>

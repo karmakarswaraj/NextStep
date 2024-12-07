@@ -52,18 +52,22 @@ function Login() {
       if (res.data.success) {
         // localStorage.setItem("authToken", res.data.token);
         dispatch(setAuthUser(res.data.user)); // Set the user data in Redux store
-        
+
         navigate(res.data.user.role === "Recruiter" ? "/admin/companies" : "/");
         toast.success(res.data.message || "Login successful");
       }
     } catch (error) {
       // Handle error properly: Network errors, Axios errors, etc.
-      toast.error(res.data.message || "Login failed");
+      if (error.response) {
+        toast.error(error.response.data.message || "Login failed"); // Use error.response here
+      } else {
+        toast.error("Network error: Unable to connect.");
+      }
     } finally {
       dispatch(setLoading(false)); // Stop the loading indicator
     }
   };
-  
+
   return (
     <div className="flex flex-col justify-center h-screen text-white bg-gray-900">
       <div className="flex items-center justify-center w-full px-4 py-8 mx-auto">

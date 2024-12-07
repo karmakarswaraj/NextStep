@@ -32,7 +32,7 @@ import { JOB_ENDPOINT_API } from "@/utility/constants";
 
 const JobDescription = () => {
 
-    // const { jobData,  } = useGetSingleJob(id); // Use the custom hook
+    // const { jobData } = useGetSingleJob(id); // Use the custom hook
     const [isSaved, setIsSaved] = useState(false);
     // const [isLoading, setIsLoading] = useState(true);
 
@@ -41,17 +41,9 @@ const JobDescription = () => {
     const isIntiallyApplied = singleJobById?.applications?.some(application => application.applicant === authUser?._id) || false;
     const [isApplied, setIsApplied] = useState(isIntiallyApplied);
 
-    
-
     const { id } = useParams(); // Get job ID from route
     const dispatch = useDispatch();
-    if (!singleJobById) {
-        return (
-            <div className="flex items-center justify-center min-h-screen text-white bg-gray-500">
-                <p>Loading job details...</p>
-            </div>
-        );
-    }
+
 
     const handleApply = async () => {
         if (!authUser) {
@@ -70,8 +62,21 @@ const JobDescription = () => {
 
             if (res.data.success) {
                 setIsApplied(true);
-                const updatedSingleJob = { ...singleJobById, applications: [...singleJobById.applications, { applicant: authUser?._id }] }; // Update the applications array in the job data
+
+                // Check the current structure of `applications` and update accordingly
+                const updatedApplications = [
+                    ...singleJobById.applications,
+                    { applicant: { _id: authUser?._id } }, // Ensure consistent structure
+                ];
+
+                // Update the applications array in the job data
+                const updatedSingleJob = {
+                    ...singleJobById,
+                    applications: updatedApplications,
+                };
+
                 dispatch(setSingleJobById(updatedSingleJob));
+
                 toast.success("Application submitted successfully!");
                 // Update local UI state if needed, e.g., set a flag to disable the apply button
             } else {
@@ -94,6 +99,9 @@ const JobDescription = () => {
             try {
                 const response = await axios.get(`${JOB_ENDPOINT_API}/find/${id}`, { withCredentials: true });
                 if (response.data && response.data.job) {
+                    console.log(response.data.job);
+
+                    dispatch(setSingleJobById(null));
 
                     dispatch(setSingleJobById(response.data.job));
                     setIsApplied(response.data.job.applications.some(application => application.applicant === authUser?._id));
@@ -110,7 +118,7 @@ const JobDescription = () => {
         if (id) {
             fetchJobData();
         }
-    }, [id, dispatch, authUser?._id]);
+    }, [id, dispatch]);
 
     const handleSaveJob = () => {
         if (!authUser) {
@@ -126,22 +134,7 @@ const JobDescription = () => {
         toast.success("Job link has been copied to clipboard.");
     };
 
-    const {
-        title,
-        company,
-        location,
-        jobType,
-        salary,
-        createdAt,
-        description,
-        responsibilities,
-        requirements,
-        benefits,
-        applicationDeadline,
-        applications,
-        openings,
-    } = singleJobById;
-    
+
 
     return (
         <div className="min-h-screen text-white bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900">
@@ -155,15 +148,15 @@ const JobDescription = () => {
                                 <div className="flex items-start justify-between">
                                     <div>
                                         <CardTitle className="text-3xl font-bold">
-                                            {title}
+                                            {singleJobById.title}
                                         </CardTitle>
                                         <CardDescription className="text-xl text-red-500">
-                                            {company.companyName}
+                                            {singleJobById.company.companyName}
                                         </CardDescription>
                                     </div>
                                     <img
                                         // src={jobData.company.companyLogo || "/default-logo.png"}
-                                        // alt={`${jobData.company.companyName} logo`}
+                                        alt={`${singleJobById.company.companyName} logo`}
                                         width={64}
                                         height={64}
                                         className="rounded-md"
@@ -174,19 +167,19 @@ const JobDescription = () => {
                                 <div className="flex flex-wrap gap-4 mb-6">
                                     <Badge variant="secondary" className="flex items-center bg-yellow-500">
                                         <MapPin className="w-4 h-4 mr-1" />
-                                        {location}
+                                        {singleJobById.location}
                                     </Badge>
                                     <Badge variant="secondary" className="flex items-center bg-yellow-500">
                                         <Briefcase className="w-4 h-4 mr-1 " />
-                                        {jobType}
+                                        {singleJobById.jobType}
                                     </Badge>
                                     <Badge variant="secondary" className="flex items-center bg-yellow-500">
                                         <DollarSign className="w-4 h-4 mr-1" />
-                                        {salary}
+                                        {singleJobById.salary}
                                     </Badge>
                                     <Badge variant="secondary" className="flex items-center bg-yellow-500">
                                         <Clock className="w-4 h-4 mr-1" />
-                                        Posted on {new Date(createdAt).toDateString()}
+                                        Posted on {new Date(singleJobById.createdAt).toDateString()}
                                     </Badge>
                                 </div>
                                 <Separator className="my-6" />
@@ -194,13 +187,13 @@ const JobDescription = () => {
                                 <div className="space-y-6">
                                     <div>
                                         <h3 className="mb-2 text-xl font-semibold">Job Description</h3>
-                                        <p>{description}</p>
+                                        <p>{singleJobById.description}</p>
                                     </div>
 
                                     <div>
                                         <h3 className="mb-2 text-xl font-semibold">Responsibilities</h3>
                                         <ul className="pl-5 space-y-1 list-disc">
-                                            {responsibilities.map((item, index) => (
+                                            {singleJobById.responsibilities.map((item, index) => (
                                                 <li key={index}>{item}</li>
                                             ))}
                                         </ul>
@@ -209,7 +202,7 @@ const JobDescription = () => {
                                     <div>
                                         <h3 className="mb-2 text-xl font-semibold">Requirements</h3>
                                         <ul className="pl-5 space-y-1 list-disc">
-                                            {requirements.map((item, index) => (
+                                            {singleJobById.requirements.map((item, index) => (
                                                 <li key={index}>{item}</li>
                                             ))}
                                         </ul>
@@ -218,7 +211,7 @@ const JobDescription = () => {
                                     <div>
                                         <h3 className="mb-2 text-xl font-semibold">Benefits</h3>
                                         <ul className="pl-5 space-y-1 list-disc">
-                                            {benefits.map((item, index) => (
+                                            {singleJobById.benefits.map((item, index) => (
                                                 <li key={index}>{item}</li>
                                             ))}
                                         </ul>
@@ -253,15 +246,15 @@ const JobDescription = () => {
                                 <div className="space-y-3">
                                     <div className="flex items-center">
                                         <Building className="w-5 h-5 mr-2" />
-                                        <span>{company.companyName}</span>
+                                        <span>{singleJobById.company.companyName}</span>
                                     </div>
                                     <div className="flex items-center">
                                         <Users className="w-5 h-5 mr-2" />
-                                        <span>{openings}</span>
+                                        <span>{singleJobById.openings}</span>
                                     </div>
                                     <div className="flex items-center">
                                         <MapPin className="w-5 h-5 mr-2" />
-                                        <span>{location}</span>
+                                        <span>{singleJobById.location}</span>
                                     </div>
                                 </div>
 
@@ -276,14 +269,14 @@ const JobDescription = () => {
                         </Card>
                         <Card className="mt-6 bg-[#121212] text-white">
                             <CardHeader >
-                                <CardTitle>Application Deadline</CardTitle>
+                                <CardTitle>More information</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <p className="text-lg font-semibold">
-                                    {new Date(applicationDeadline).toDateString()}
+                                    Application Deadline : {new Date(singleJobById.applicationDeadline).toDateString()}
                                 </p>
                                 <p className="text-lg font-semibold">
-                                    Total Applicants : {applications.length}
+                                    Total Applicants : {singleJobById.applications.length}
                                 </p>
                             </CardContent>
                         </Card>

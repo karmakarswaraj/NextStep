@@ -36,9 +36,9 @@ const postJob = async (req, res) => {
       !location ||
       !salary ||
       !jobType ||
-      !company||
-      !postedBy || 
-      !benefits || 
+      !company ||
+      !postedBy ||
+      !benefits ||
       !responsibilities
     ) {
       return res.status(400).json({
@@ -48,10 +48,10 @@ const postJob = async (req, res) => {
     }
 
     const requirementsArray = requirements
-    ? Array.isArray(requirements)
-      ? requirements.map((item) => item.trim())
-      : requirements.split(",").map((item) => item.trim())
-    : [];
+      ? Array.isArray(requirements)
+        ? requirements.map((item) => item.trim())
+        : requirements.split(",").map((item) => item.trim())
+      : [];
 
     // Create a new job posting
     const job = await Job.create({
@@ -127,7 +127,9 @@ const getAllJob = async (req, res) => {
 const getJobId = async (req, res) => {
   try {
     // Fetch the job using the job ID from the request parameters
-    const job = await Job.findById(req.params.id);
+    const job = await Job.findById(req.params.id).populate({
+      path: "applications",
+    });
 
     // Check if the job was found
     if (!job) {

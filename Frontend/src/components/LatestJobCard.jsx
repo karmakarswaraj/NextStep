@@ -2,7 +2,9 @@ import React from 'react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Briefcase, MapPin, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from 'react-router-dom';
 function LatestJobCard({ job }) {
+    const navigate = useNavigate();
     return (
         <div>
             <Card key={job} className="border border-gray-600 rounded-lg shadow-md ">
@@ -25,7 +27,7 @@ function LatestJobCard({ job }) {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button variant="ghost" className="w-full text-white bg-black hover:bg-red-600 hover:text-white">
+                    <Button variant="ghost" className="w-full text-white bg-black hover:bg-red-600 hover:text-white" onClick={() => {navigate(`/jobs/details/${job._id}`) }}>
                         View Job
                     </Button>
                 </CardFooter>

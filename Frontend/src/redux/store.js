@@ -14,6 +14,7 @@ import {
 
 import authSlice from "./authSlice";
 import jobSlice from "./jobSlice";
+import companySlice from "./companySlice";
 
 const persistConfig = {
   key: "root", // Key for the local storage entry
@@ -24,6 +25,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   auth: authSlice,
   job: jobSlice,
+  company : companySlice,
 });
 // Wrap reducers with persistReducer
 const persistedReducer = persistReducer(persistConfig, rootReducer);

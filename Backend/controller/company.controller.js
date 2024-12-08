@@ -4,7 +4,7 @@ import Company from "../models/company.model.js";
 const companyRegister = async (req, res) => {
   try {
     // Destructure companyName from request body
-    const { companyName, description } = req.body;
+    const { companyName, description, location, website, employeeCount } = req.body;
 
     // Check if companyName is provided in the request body
     if (!companyName || companyName.trim() === "") {
@@ -31,6 +31,9 @@ const companyRegister = async (req, res) => {
     const newCompany = await Company.create({
       companyName,
       description,
+      location,
+      website,
+      employeeCount,
       userId: req._id,
     });
 

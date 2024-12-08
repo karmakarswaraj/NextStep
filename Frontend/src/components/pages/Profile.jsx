@@ -21,7 +21,7 @@ export default function StudentProfile() {
     const [profileCompletion, setProfileCompletion] = useState(75);
     const [open, setOpen] = useState(false);
     //get user role from the cookie
-    const { user } = useSelector((state) => state.auth);
+    const { authUser: user } = useSelector((state) => state.auth);
     const role = user ? user.role : null;
 
     return (
@@ -62,7 +62,7 @@ export default function StudentProfile() {
                                         </div>
                                         <div className="flex items-center">
                                             <Mail className="w-4 h-4 mr-2" />
-                                            <span>john.doe@example.com</span>
+                                            <span>{user?.email}</span>
                                         </div>
                                         <div className="flex items-center">
                                             <Phone className="w-4 h-4 mr-2" />
@@ -95,46 +95,64 @@ export default function StudentProfile() {
                         <div className="w-full md:w-2/3">
                             <Tabs defaultValue="about">
                                 <TabsList>
-                                    <TabsTrigger value="about">About</TabsTrigger>
-                                    <TabsTrigger value="experience">Experience</TabsTrigger>
-                                    <TabsTrigger value="education">Education</TabsTrigger>
-                                    <TabsTrigger value="skills">Skills</TabsTrigger>
-                                    <TabsTrigger value="applied">Applied</TabsTrigger>
+                                    {
+                                        role === "student" ? (
+                                            <>
+                                                <TabsTrigger value="about">About</TabsTrigger>
+                                                <TabsTrigger value="experience">Experience</TabsTrigger>
+                                                <TabsTrigger value="education">Education</TabsTrigger>
+                                                <TabsTrigger value="skills">Skills</TabsTrigger>
+                                                <TabsTrigger value="applied">Applied</TabsTrigger>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <TabsTrigger value="about">About</TabsTrigger>
+                                                <TabsTrigger value="experience">Experience</TabsTrigger>
+                                            </>
+                                        )
+                                    }
+
                                 </TabsList>
+
+                                {/* About Me Section */}
                                 <TabsContent value="about">
                                     <Card className="text-white bg-slate-900">
                                         <CardHeader>
                                             <CardTitle>About Me</CardTitle>
                                         </CardHeader>
                                         <CardContent>
-                                            <p>
-                                                I'm a passionate Computer Science Student with a keen interest in artificial intelligence and machine learning.
-                                                I'm always eager to learn new technologies and apply them to solve real-world problems.
-                                            </p>
+                                            <p>{user.profile.bio}</p>
                                         </CardContent>
                                     </Card>
                                 </TabsContent>
+
+                                {/* Work Experience Section */}
                                 <TabsContent value="experience">
                                     <Card className="text-white bg-slate-900">
                                         <CardHeader>
                                             <CardTitle>Work Experience</CardTitle>
                                         </CardHeader>
                                         <CardContent>
-                                            <div className="space-y-4">
-                                                <div>
-                                                    <h3 className="font-semibold">Software Engineering Intern</h3>
-                                                    <p className="text-sm text-muted-foreground">TechCorp Inc. • Summer 2023</p>
-                                                    <p className="mt-2">Worked on developing new features for the company's main product using React and Node.js.</p>
+                                            {user.profile.workExperience.length > 0 ? (
+                                                <div className="space-y-4">
+                                                    {user.profile.workExperience.map((experience, index) => (
+                                                        <div key={index}>
+                                                            <h3 className="font-semibold">{experience.title}</h3>
+                                                            <p className="text-sm text-muted-foreground">
+                                                                {experience.company} • {experience.period}
+                                                            </p>
+                                                            <p className="mt-2">{experience.description}</p>
+                                                        </div>
+                                                    ))}
                                                 </div>
-                                                <div>
-                                                    <h3 className="font-semibold">Research Assistant</h3>
-                                                    <p className="text-sm text-muted-foreground">Stanford AI Lab • 2022 - Present</p>
-                                                    <p className="mt-2">Assisting in research projects related to natural language processing and computer vision.</p>
-                                                </div>
-                                            </div>
+                                            ) : (
+                                                <p className="text-muted-foreground">No work experience available.</p>
+                                            )}
                                         </CardContent>
                                     </Card>
                                 </TabsContent>
+
+                                {/* Education Section */}
                                 <TabsContent value="education">
                                     <Card className="text-white bg-slate-900">
                                         <CardHeader>
@@ -142,41 +160,58 @@ export default function StudentProfile() {
                                         </CardHeader>
                                         <CardContent>
                                             <div className="space-y-4">
-                                                <div>
-                                                    <h3 className="font-semibold">Stanford University</h3>
-                                                    <p className="text-sm text-muted-foreground">Bachelor of Science in Computer Science • 2021 - 2025</p>
-                                                    <p className="mt-2">Relevant coursework: Data Structures, Algorithms, Machine Learning, Database Systems</p>
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-semibold">Online Courses</h3>
-                                                    <ul className="mt-2 list-disc list-inside">
-                                                        <li>Deep Learning Specialization - Coursera</li>
-                                                        <li>Full Stack Web Development - Udacity</li>
-                                                    </ul>
-                                                </div>
+                                                {user.profile.education.length > 0 ? (
+                                                    user.profile.education.map((education, index) => (
+                                                        <div key={index}>
+                                                            <h3 className="font-semibold">{education.institution}</h3>
+                                                            <p className="text-sm text-muted-foreground">
+                                                                {education.degree} • {education.startYear} - {education.endYear}
+                                                            </p>
+                                                            {education.relevantCoursework && education.relevantCoursework.length > 0 && (
+                                                                <p className="mt-2">
+                                                                    Relevant coursework: {education.relevantCoursework.join(", ")}
+                                                                </p>
+                                                            )}
+                                                            {education.additionalDetails && education.additionalDetails.length > 0 && (
+                                                                <ul className="mt-2 list-disc list-inside">
+                                                                    {education.additionalDetails.map((detail, detailIndex) => (
+                                                                        <li key={detailIndex}>{detail}</li>
+                                                                    ))}
+                                                                </ul>
+                                                            )}
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <p>No education details available.</p>
+                                                )}
                                             </div>
                                         </CardContent>
                                     </Card>
                                 </TabsContent>
+
+                                {/* Skills Section */}
                                 <TabsContent value="skills">
                                     <Card className="text-white bg-slate-900">
                                         <CardHeader>
                                             <CardTitle>Skills</CardTitle>
                                         </CardHeader>
-                                        <CardContent >
-                                            <div className="flex flex-wrap gap-2 ">
-                                                <Badge className="text-white bg-red-600">Python</Badge>
-                                                <Badge className="text-white bg-red-600">JavaScript</Badge>
-                                                <Badge className="text-white bg-red-600">React</Badge>
-                                                <Badge className="text-white bg-red-600">Node.js</Badge>
-                                                <Badge className="text-white bg-red-600">SQL</Badge>
-                                                <Badge className="text-white bg-red-600">Machine Learning</Badge>
-                                                <Badge className="text-white bg-red-600">Git</Badge>
-                                                <Badge className="text-white bg-red-600">AWS</Badge>
+                                        <CardContent>
+                                            <div className="flex flex-wrap gap-2">
+                                                {user.profile.skills.length > 0 ? (
+                                                    user.profile.skills.map((skill, index) => (
+                                                        <Badge key={index} className="text-white bg-red-600">
+                                                            {skill}
+                                                        </Badge>
+                                                    ))
+                                                ) : (
+                                                    <p>No skills available.</p>
+                                                )}
                                             </div>
                                         </CardContent>
                                     </Card>
                                 </TabsContent>
+
+                                {/* Applied Jobs Section */}
                                 <TabsContent value="applied">
                                     <Card className="text-white bg-slate-900">
                                         <CardHeader>
@@ -186,77 +221,92 @@ export default function StudentProfile() {
                                             <Table>
                                                 <TableHeader>
                                                     <TableRow>
-                                                        <TableHead >Date</TableHead>
-                                                        <TableHead >Company</TableHead>
+                                                        <TableHead>Date</TableHead>
+                                                        <TableHead>Company</TableHead>
                                                         <TableHead>Role</TableHead>
                                                         <TableHead className="text-right">Status</TableHead>
                                                     </TableRow>
                                                 </TableHeader>
                                                 <TableBody>
-                                                    {
-                                                        Array.from({ length: 2 }).map((_, index) => (
+                                                    {user.profile.appliedJobs.length > 0 ? (
+                                                        user.profile.appliedJobs.map((job, index) => (
                                                             <TableRow key={index}>
-                                                                <TableCell>2023-06-01</TableCell>
-                                                                <TableCell>Google</TableCell>
-                                                                <TableCell>Software Engineer</TableCell>
-                                                                <TableCell className="text-right"><Badge className="text-white bg-red-600">Pending </Badge></TableCell>
+                                                                <TableCell>{job.date}</TableCell>
+                                                                <TableCell>{job.company}</TableCell>
+                                                                <TableCell>{job.role}</TableCell>
+                                                                <TableCell className="text-right">
+                                                                    <Badge className="text-white bg-red-600">
+                                                                        {job.status}
+                                                                    </Badge>
+                                                                </TableCell>
                                                             </TableRow>
                                                         ))
-                                                    }
+                                                    ) : (
+                                                        <TableRow>
+                                                            <TableCell colSpan="4">No applied jobs available.</TableCell>
+                                                        </TableRow>
+                                                    )}
                                                 </TableBody>
                                             </Table>
                                         </CardContent>
                                     </Card>
                                 </TabsContent>
                             </Tabs>
-                            {
-                                role === 'Student' ? (
-                                    <Card className="mt-6 text-white bg-slate-900">
-                                        <CardHeader>
-                                            <CardTitle>Job Preferences</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="space-y-2">
-                                                <div className="flex justify-between">
-                                                    <span>Desired Role:</span>
-                                                    <span>Software Engineer</span>
-                                                </div>
-                                                <div className="flex justify-between">
-                                                    <span>Job Type:</span>
-                                                    <span>Full-time, Internship</span>
-                                                </div>
-                                                <div className="flex justify-between">
-                                                    <span>Preferred Locations:</span>
-                                                    <span>San Francisco, New York, Remote</span>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                        <CardFooter>
-                                            <Button variant="outline" className="w-full bg-red-800">Update Preferences</Button>
-                                        </CardFooter>
-                                    </Card>) : (
-                                    <Card className="mt-6 text-white bg-slate-900">
-                                        <CardHeader>
-                                            <CardTitle>Recruitment Focus</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="flex flex-wrap gap-2">
-                                                <Badge>Software Engineering</Badge>
-                                                <Badge>Data Science</Badge>
-                                                <Badge>Product Management</Badge>
-                                                <Badge>UX/UI Design</Badge>
-                                                <Badge>DevOps</Badge>
-                                                <Badge>Artificial Intelligence</Badge>
-                                            </div>
-                                        </CardContent>
-                                        <CardFooter>
-                                            <Button variant="outline" className="w-full">Update Focus Areas</Button>
-                                        </CardFooter>
-                                    </Card>)
-                            }
 
-
+                            {/* Dynamic Job Preferences or Recruitment Focus */}
+                            {role === 'Student' ? (
+                                <Card className="mt-6 text-white bg-slate-900">
+                                    <CardHeader>
+                                        <CardTitle>Job Preferences</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="space-y-2">
+                                            <div className="flex justify-between">
+                                                <span>Desired Role:</span>
+                                                <span>{user.profile.jobPreferences?.role || 'Software Engineer'}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Job Type:</span>
+                                                <span>{user.profile.jobPreferences?.type || 'Full-time, Internship'}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Preferred Locations:</span>
+                                                <span>{user.profile.jobPreferences?.locations?.join(', ') || 'San Francisco, New York, Remote'}</span>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                    <CardFooter>
+                                        <Button variant="outline" className="w-full bg-red-800">Update Preferences</Button>
+                                    </CardFooter>
+                                </Card>
+                            ) : (
+                                <Card className="mt-6 text-white bg-slate-900">
+                                    <CardHeader>
+                                        <CardTitle>Recruitment Focus</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="flex flex-wrap gap-2">
+                                            {user.profile.recruitmentFocus?.map((focus, index) => (
+                                                <Badge key={index}>{focus}</Badge>
+                                            )) || (
+                                                    <>
+                                                        <Badge>Software Engineering</Badge>
+                                                        <Badge>Data Science</Badge>
+                                                        <Badge>Product Management</Badge>
+                                                        <Badge>UX/UI Design</Badge>
+                                                        <Badge>DevOps</Badge>
+                                                        <Badge>Artificial Intelligence</Badge>
+                                                    </>
+                                                )}
+                                        </div>
+                                    </CardContent>
+                                    <CardFooter>
+                                        <Button variant="outline" className="w-full">Update Focus Areas</Button>
+                                    </CardFooter>
+                                </Card>
+                            )}
                         </div>
+
                     </div>
                 </div>
             </div>

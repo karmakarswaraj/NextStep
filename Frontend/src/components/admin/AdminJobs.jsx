@@ -50,93 +50,173 @@ const AdminJobsPage = () => {
 
   return (
     <>
-    <Navbar />
-    <div className="p-4 mx-auto bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900 text-primary-foreground">
-      <h1 className="mb-4 text-2xl font-bold">Admin Job Board</h1>
-      
-      {/* Dialog for adding a new job */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogTrigger asChild>
-          <Button className="mb-4">Post a New Job</Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Post a New Job</DialogTitle>
-            <DialogDescription>Fill out the form below to post a new job listing.</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Job Title</Label>
-              <Input
-                id="title"
-                name="title"
-                value={newJob.title}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="company">Company</Label>
-              <Input
-                id="company"
-                name="company"
-                value={newJob.company}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                name="location"
-                value={newJob.location}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Job Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                value={newJob.description}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <DialogFooter>
-              <Button type="submit">Post Job</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <Navbar />
+      <div className="p-4 mx-auto bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900 text-primary-foreground">
+        <div className='flex flex-row justify-between mx-auto'>
+          <h1 className="mb-4 text-2xl font-bold">Admin Job Board</h1>
 
-      <h2 className="mb-4 text-xl font-semibold">Posted Jobs</h2>
-      {jobs.length === 0 ? (
-        <p>No jobs posted yet.</p>
-      ) : (
-        <div className="space-y-4">
-          {jobs.map((job) => (
-            <Card key={job.id}>
-              <CardHeader>
-                <CardTitle>{job.title}</CardTitle>
-                <CardDescription>{job.company} - {job.location}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>{job.description}</p>
-              </CardContent>
-              <CardFooter>
-                <p className="text-sm text-muted-foreground">
-                  Posted on: {job.postedAt.toLocaleDateString()}
-                </p>
-              </CardFooter>
-            </Card>
-          ))}
+          {/* Dialog for adding a new job */}
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="mb-4">Post a new Job</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{newJob.title}</DialogTitle>
+                <DialogDescription>
+                  Edit the details for this job listing.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Job Title</Label>
+                  <Input
+                    id="title"
+                    name="title"
+                    value={newJob.title}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="companyName">Company Name</Label>
+                  <Input
+                    id="companyName"
+                    name="companyName"
+                    value={newJob.company.companyName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    name="location"
+                    value={newJob.location}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="salary">Salary</Label>
+                  <Input
+                    id="salary"
+                    name="salary"
+                    value={newJob.salary}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="jobType">Job Type</Label>
+                  <Input
+                    id="jobType"
+                    name="jobType"
+                    value={newJob.jobType}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Job Description</Label>
+                  <Textarea
+                    id="description"
+                    name="description"
+                    value={newJob.description}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                {/* <div className="space-y-2">
+                  <Label htmlFor="requirements">Requirements</Label>
+                  <Textarea
+                    id="requirements"
+                    name="requirements"
+                    value={newJob.requirements.join("\n")}
+                    onChange={(e) =>
+                      setFormData({
+                        ...newJob,
+                        requirements: e.target.value.split("\n"),
+                      })
+                    }
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="benefits">Benefits</Label>
+                  <Textarea
+                    id="benefits"
+                    name="benefits"
+                    value={newJob.benefits.join("\n")}
+                    onChange={(e) =>
+                      setFormData({
+                        ...newJob,
+                        benefits: e.target.value.split("\n"),
+                      })
+                    }
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="responsibilities">Responsibilities</Label>
+                  <Textarea
+                    id="responsibilities"
+                    name="responsibilities"
+                    value={newJob.responsibilities.join("\n")}
+                    onChange={(e) =>
+                      setFormData({
+                        ...newJob,
+                        responsibilities: e.target.value.split("\n"),
+                      })
+                    }
+                    required
+                  />
+                </div> */}
+                <DialogFooter>
+                  <Button type="submit">Save Changes</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
-      )}
-    </div>
-  <Footer />
+
+        <Card>
+          <CardHeader >
+            <CardTitle>Posted Jobs</CardTitle>
+            <CardDescription>A list of all jobs posted in the system.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {jobs.length === 0 ? (
+              <p>No jobs posted yet.</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Company</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Posted On</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {jobs.map((job) => (
+                    <TableRow key={job.id}>
+                      <TableCell>{job.title}</TableCell>
+                      <TableCell>{job.company}</TableCell>
+                      <TableCell>{job.location}</TableCell>
+                      <TableCell>{job.description}</TableCell>
+                      <TableCell>{new Date(job.postedAt).toLocaleDateString()}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+      <Footer />
     </>
   );
 };

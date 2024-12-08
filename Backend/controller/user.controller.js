@@ -85,7 +85,7 @@ const userLogin = async (req, res) => {
 
     // Create a JWT token for the user (expires in 1 hour)
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "30m",
     });
 
     // Prepare the user data (exclude sensitive information like password)
@@ -103,7 +103,7 @@ const userLogin = async (req, res) => {
       httpOnly: true, // Prevents JavaScript access to the cookie
       sameSite: "None", // Prevents CSRF attacks
       secure: true,
-      maxAge: 24 * 60 * 60 * 1000, // Expires in 1 day
+      maxAge: 30 * 60 * 1000, // 30 minutes
     });
 
     // Return success response with user data and message
